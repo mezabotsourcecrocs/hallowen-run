@@ -100,7 +100,109 @@
     margin-top: 10px;
   }
 
-  /* ── COSTUME PICKER ── */
+  /* ── DEVICE SELECT SCREEN ── */
+  #deviceScreen { z-index: 25; background: rgba(13,0,16,0.96); }
+  .device-btn-stack { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 300px; margin-top: 10px; }
+  .device-choice-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 16px 18px;
+    cursor: pointer;
+    text-align: left;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    transition: all 0.2s;
+  }
+  .device-choice-btn:hover { border-color: #FF6B35; background: rgba(255,107,53,0.1); transform: translateY(-2px); }
+  .device-choice-icon { font-size: 34px; flex-shrink: 0; }
+  .device-choice-title { font-size: 15px; font-weight: 900; margin-bottom: 2px; }
+  .device-choice-sub { font-size: 12px; color: #b89ec9; }
+
+  /* ── DEVICE TUTORIAL MODAL (reuse htp style) ── */
+  #deviceTutorialOverlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30;
+    padding: 16px;
+  }
+  #deviceTutorialOverlay.hidden { display: none; }
+  .warn-box {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(255,59,59,0.12);
+    border: 1.5px solid rgba(255,59,59,0.4);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: #ffc9c9;
+  }
+  .warn-box .warn-icon { font-size: 18px; flex-shrink: 0; }
+  .rotate-box {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,209,102,0.1);
+    border: 1.5px solid rgba(255,209,102,0.35);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-top: 10px;
+  }
+  .rotate-icon { font-size: 28px; animation: rotateHint 1.6s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
+
+  /* ── COSTUME PICKER (halaman utama) ── */
+  .costume-picker-layout {
+    display: flex; align-items: center; justify-content: center;
+    gap: 18px; width: 100%; max-width: 380px;
+  }
+  .costume-preview-panel {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 16px 10px;
+    min-height: 220px;
+  }
+  #costumePreviewCanvas { image-rendering: pixelated; }
+  .costume-preview-name {
+    margin-top: 10px; font-size: 13px; font-weight: 900;
+    color: #FFD166; text-align: center; letter-spacing: 0.3px;
+  }
+  .costume-color-panel {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 260px; overflow-y: auto;
+    padding-right: 2px;
+  }
+  .costume-color-panel::-webkit-scrollbar { width: 5px; }
+  .costume-color-panel::-webkit-scrollbar-thumb { background: rgba(255,107,53,0.4); border-radius: 4px; }
+  .costume-color-btn {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 130px;
+  }
+  .costume-color-btn:hover { background: rgba(255,255,255,0.09); }
+  .costume-color-btn.selected {
+    border-color: #FFD166;
+    background: rgba(255,209,102,0.12);
+    box-shadow: 0 0 12px rgba(255,209,102,0.3);
+  }
+  .costume-color-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+  .costume-color-btn-name { font-size: 12px; color: #d8c5e8; text-align: left; }
+  .costume-color-btn.selected .costume-color-btn-name { color: #FFD166; font-weight: 700; }
+
+  /* ── COSTUME PICKER (lama, options - dibiarkan untuk kompatibilitas) ── */
   .costume-section { margin: 10px 0 16px; width: 100%; max-width: 320px; }
 
   /* ── NEW SIMPLIFIED MENU ── */
@@ -609,12 +711,76 @@
   <div id="milestoneBanner"></div>
   
   <div id="mobileJump"></div>
-  <div class="screen" id="startScreen">
+  <!-- PILIH DEVICE (muncul sekali setelah loading selesai) -->
+  <div class="screen" id="deviceScreen">
+    <div class="start-emoji">🕹️</div>
+    <div class="screen-title" style="font-size:clamp(24px,5.5vw,40px);">Pilih Device<br>Yang Kamu Gunakan</div>
+    <div class="screen-sub">Supaya kami bisa kasih tips main yang paling pas buat kamu 👇</div>
+    <div class="device-btn-stack">
+      <button class="device-choice-btn" id="deviceDesktopBtn">
+        <span class="device-choice-icon">🖥️</span>
+        <span>
+          <div class="device-choice-title">Desktop / Laptop</div>
+          <div class="device-choice-sub">Main pakai keyboard & mouse</div>
+        </span>
+      </button>
+      <button class="device-choice-btn" id="deviceMobileBtn">
+        <span class="device-choice-icon">📱</span>
+        <span>
+          <div class="device-choice-title">Handphone</div>
+          <div class="device-choice-sub">Main pakai layar sentuh</div>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TUTORIAL SESUAI DEVICE -->
+  <div id="deviceTutorialOverlay" class="hidden">
+    <div id="htpCard">
+      <div class="htp-title" id="deviceTutorialTitle">📖 Tutorial</div>
+
+      <!-- Konten Desktop -->
+      <div id="deviceTutorialDesktop" style="display:none;">
+        <div class="htp-section">
+          <h4>🎮 Kontrol Desktop</h4>
+          <div class="htp-row"><span class="htp-icon">⎵</span><span>Tekan <b>Space</b> atau <b>↑ Arrow</b> untuk lompat</span></div>
+          <div class="htp-row"><span class="htp-icon">🖱️</span><span><b>Klik</b> di area game juga bisa untuk lompat</span></div>
+          <div class="htp-row"><span class="htp-icon">🦘</span><span><b>Double jump</b> — tekan lagi saat masih di udara!</span></div>
+        </div>
+        <div class="warn-box">
+          <span class="warn-icon">⚠️</span>
+          <span>Pastikan jendela browser tidak dalam mode <b>zoom terlalu kecil/besar</b> agar tampilan game tetap pas.</span>
+        </div>
+      </div>
+
+      <!-- Konten Handphone -->
+      <div id="deviceTutorialMobile" style="display:none;">
+        <div class="htp-section">
+          <h4>🎮 Kontrol Handphone</h4>
+          <div class="htp-row"><span class="htp-icon">👆</span><span><b>Tap</b> layar untuk lompat</span></div>
+          <div class="htp-row"><span class="htp-icon">🦘</span><span><b>Double jump</b> — tap lagi saat masih di udara!</span></div>
+        </div>
+        <div class="rotate-box">
+          <span class="rotate-icon">📱</span>
+          <span style="font-size:12.5px;color:#ffe9b8;"><b>Putar HP ke mode landscape (mendatar)</b> supaya game bisa tampil dan berfungsi sepenuhnya!</span>
+        </div>
+        <div class="warn-box" style="margin-top:10px;">
+          <span class="warn-icon">🚫</span>
+          <span><b>Jangan aktifkan mode "Tampilan Desktop"</b> di browser HP kamu (Chrome/Safari, dll) — ini bisa membuat game tidak berfungsi dengan baik.</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary htp-close" id="deviceTutorialContinueBtn" style="margin-top:16px;">✅ Mengerti, Lanjut!</button>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="startScreen">
     <div class="start-emoji">👟</div>
     <div class="screen-title" data-i18n="title">CROCS<br>HALLOWEEN<br>RUN!</div>
     <div class="screen-sub" data-i18n="subtitle">Lari sejauh mungkin, hindari rintangan,<br>kumpulkan permen untuk Source Crocs!</div>
     <div class="menu-btn-stack">
       <button class="btn btn-primary menu-btn" id="startBtn">▶ <span data-i18n="play">Play</span></button>
+      <button class="btn btn-ghost menu-btn" id="costumeBtn">👟 <span data-i18n="costume">Kostum</span></button>
       <button class="btn btn-ghost menu-btn" id="optionsBtn">⚙ <span data-i18n="options">Options</span></button>
       <button class="btn btn-ghost menu-btn" id="htpBtn">📖 <span data-i18n="howToPlay">Cara Bermain</span></button>
       <button class="btn btn-ghost menu-btn" id="helpBtn">💬 <span data-i18n="help">Bantuan</span></button>
@@ -680,14 +846,25 @@
     <button class="btn btn-ghost" id="helpBackBtn" style="margin-top:16px;"><span data-i18n="back">← Kembali</span></button>
   </div>
 
+  <!-- COSTUME SCREEN -->
+  <div class="screen hidden" id="costumeScreen">
+    <div class="screen-title" style="font-size:clamp(26px,5vw,42px);">👟 <span data-i18n="costume">Kostum</span></div>
+    <div class="screen-sub" data-i18n="costumeSub" style="margin-bottom:14px;">Pilih warna Crocs favoritmu!</div>
+
+    <div class="costume-picker-layout">
+      <div class="costume-preview-panel">
+        <canvas id="costumePreviewCanvas" width="180" height="180"></canvas>
+        <div class="costume-preview-name" id="costumePreviewName">Classic Orange</div>
+      </div>
+      <div class="costume-color-panel" id="costumeColorPanel"></div>
+    </div>
+
+    <button class="btn btn-ghost" id="costumeBackBtn" style="margin-top:18px;"><span data-i18n="back">← Kembali</span></button>
+  </div>
+
   <!-- OPTIONS SCREEN -->
   <div class="screen hidden" id="optionsScreen">
     <div class="screen-title" style="font-size:clamp(28px,6vw,44px);">⚙ <span data-i18n="options">Options</span></div>
-
-    <div class="costume-section">
-      <div class="costume-label" data-i18n="chooseCostume">Pilih Kostum</div>
-      <div class="costume-grid" id="costumeGrid"></div>
-    </div>
 
     <div class="opt-row" id="optMuteRow">
       <span data-i18n="gameSound">Suara Game</span>
@@ -1095,6 +1272,8 @@ const LANG = {
     leaderboard:   'Papan Skor',
     back:          '← Kembali',
     chooseCostume: 'Pilih Kostum',
+    costume:       'Kostum',
+    costumeSub:    'Pilih warna Crocs favoritmu!',
     gameSound:     'Suara Game',
     on:            'Hidup',
     off:           'Mati',
@@ -1141,6 +1320,8 @@ const LANG = {
     leaderboard:   'Leaderboard',
     back:          '← Back',
     chooseCostume: 'Choose Costume',
+    costume:       'Costume',
+    costumeSub:    'Pick your favorite Crocs color!',
     gameSound:     'Game Sound',
     on:            'On',
     off:           'Off',
@@ -1914,23 +2095,73 @@ function loop(ts){
 // ═══════════════════════════════════════════════════════════
 //  EVENTS
 // ═══════════════════════════════════════════════════════════
-// Render costume picker
+// Render costume picker (preview kiri + pilihan warna kanan)
+const costumePreviewCanvas = document.getElementById('costumePreviewCanvas');
+const costumePreviewCtx = costumePreviewCanvas ? costumePreviewCanvas.getContext('2d') : null;
+
+function drawCostumePreview(costume){
+  if(!costumePreviewCtx) return;
+  const pctx = costumePreviewCtx;
+  const w = costumePreviewCanvas.width, h = costumePreviewCanvas.height;
+  pctx.clearRect(0,0,w,h);
+  const cx = w/2, cy = h/2+10;
+  const ps = 42; // ukuran preview lebih besar dari in-game
+  pctx.save();
+  pctx.translate(cx, cy);
+  // badan sepatu
+  pctx.beginPath();pctx.roundRect(-ps,-ps*.5,ps*2,ps,ps*.5);pctx.fillStyle=costume.body;pctx.fill();pctx.strokeStyle=costume.bodyDark;pctx.lineWidth=Math.max(1,ps*.06);pctx.stroke();
+  // lubang crocs
+  pctx.fillStyle=costume.bodyDark;
+  const hs=Math.round(ps*.35);
+  for(let i=0;i<4;i++){pctx.beginPath();pctx.arc(-ps*.62+i*ps*.41,-ps*.06,hs,0,Math.PI*2);pctx.fill();}
+  // strap
+  pctx.beginPath();pctx.roundRect(-ps*.75,-ps*.87,ps*1.5,ps*.5,ps*.25);pctx.fillStyle=costume.strap;pctx.fill();pctx.strokeStyle=costume.strapDark;pctx.lineWidth=Math.max(1,ps*.05);pctx.stroke();
+  // mata
+  const es2=Math.round(ps*.22);pctx.fillStyle='#fff';pctx.beginPath();pctx.arc(-ps*.25,-ps*.625,es2,0,Math.PI*2);pctx.fill();pctx.beginPath();pctx.arc(ps*.31,-ps*.625,es2,0,Math.PI*2);pctx.fill();
+  const ep=Math.round(ps*.125);pctx.fillStyle='#1A0A2E';pctx.beginPath();pctx.arc(-ps*.25,-ps*.625,ep,0,Math.PI*2);pctx.fill();pctx.beginPath();pctx.arc(ps*.31,-ps*.625,ep,0,Math.PI*2);pctx.fill();
+  pctx.restore();
+  // kaki kecil
+  pctx.save();
+  const lw=ps*.32, lh=ps*.5;
+  pctx.fillStyle=costume.body;
+  pctx.beginPath();pctx.ellipse(cx-ps*.5,cy+ps*.62,lw,lh,.2,0,Math.PI*2);pctx.fill();
+  pctx.beginPath();pctx.ellipse(cx+ps*.5,cy+ps*.62,lw,lh,-.2,0,Math.PI*2);pctx.fill();
+  pctx.restore();
+}
+
 function renderCostumeGrid(){
-  const grid=document.getElementById('costumeGrid');
-  grid.innerHTML=COSTUMES.map(c=>`
-    <div class="costume-card ${c.id===selectedCostume.id?'selected':''}" data-id="${c.id}">
-      <div class="costume-swatch" style="background:${c.body};"></div>
-      <div class="costume-name">${c.name}</div>
-    </div>
+  const panel=document.getElementById('costumeColorPanel');
+  if(!panel) return;
+  panel.innerHTML=COSTUMES.map(c=>`
+    <button class="costume-color-btn ${c.id===selectedCostume.id?'selected':''}" data-id="${c.id}">
+      <span class="costume-color-dot" style="background:${c.body};"></span>
+      <span class="costume-color-btn-name">${c.emoji} ${c.name}</span>
+    </button>
   `).join('');
-  grid.querySelectorAll('.costume-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      saveCostume(card.dataset.id);
-      grid.querySelectorAll('.costume-card').forEach(c=>c.classList.remove('selected'));
-      card.classList.add('selected');
+  panel.querySelectorAll('.costume-color-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      saveCostume(btn.dataset.id);
+      panel.querySelectorAll('.costume-color-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      drawCostumePreview(selectedCostume);
+      const nameEl=document.getElementById('costumePreviewName');
+      if(nameEl) nameEl.textContent = selectedCostume.name;
     });
   });
+  drawCostumePreview(selectedCostume);
+  const nameEl=document.getElementById('costumePreviewName');
+  if(nameEl) nameEl.textContent = selectedCostume.name;
 }
+
+// Navigasi ke halaman Kostum dari menu utama
+document.getElementById('costumeBtn').addEventListener('click',()=>{
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('costumeScreen').classList.remove('hidden');
+});
+document.getElementById('costumeBackBtn').addEventListener('click',()=>{
+  document.getElementById('costumeScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+});
 // Language buttons
 document.querySelectorAll('.lang-btn[data-lang]').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -1955,6 +2186,51 @@ applyLang();
 applyGfx();
 
 document.getElementById('startBtn').addEventListener('click',()=>{ isTraining=false; startGame(); });
+
+// ── PILIH DEVICE + TUTORIAL ──
+// Saat load pertama, sembunyikan startScreen dan tampilkan deviceScreen dulu.
+document.getElementById('startScreen').classList.add('hidden');
+document.getElementById('deviceScreen').classList.remove('hidden');
+
+let deviceTutorialTimerId = null;
+function showDeviceTutorial(type){
+  document.getElementById('deviceScreen').classList.add('hidden');
+  document.getElementById('deviceTutorialDesktop').style.display = (type==='desktop') ? 'block' : 'none';
+  document.getElementById('deviceTutorialMobile').style.display = (type==='mobile') ? 'block' : 'none';
+  document.getElementById('deviceTutorialTitle').textContent = (type==='desktop') ? '🖥️ Tutorial Desktop' : '📱 Tutorial Handphone';
+  document.getElementById('deviceTutorialOverlay').classList.remove('hidden');
+
+  // Timer 10 detik sebelum tombol lanjut bisa dipencet
+  const btn = document.getElementById('deviceTutorialContinueBtn');
+  let secondsLeft = 10;
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.style.cursor = 'not-allowed';
+  btn.textContent = `⏳ Tunggu ${secondsLeft} detik...`;
+  if(deviceTutorialTimerId) clearInterval(deviceTutorialTimerId);
+  deviceTutorialTimerId = setInterval(()=>{
+    secondsLeft--;
+    if(secondsLeft > 0){
+      btn.textContent = `⏳ Tunggu ${secondsLeft} detik...`;
+    } else {
+      clearInterval(deviceTutorialTimerId);
+      deviceTutorialTimerId = null;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.textContent = '✅ Mengerti, Lanjut!';
+    }
+  }, 1000);
+}
+
+document.getElementById('deviceDesktopBtn').addEventListener('click',()=>showDeviceTutorial('desktop'));
+document.getElementById('deviceMobileBtn').addEventListener('click',()=>showDeviceTutorial('mobile'));
+
+document.getElementById('deviceTutorialContinueBtn').addEventListener('click',()=>{
+  if(document.getElementById('deviceTutorialContinueBtn').disabled) return;
+  document.getElementById('deviceTutorialOverlay').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+});
 // Options screen
 document.getElementById('optionsBtn').addEventListener('click',()=>{
   document.getElementById('startScreen').classList.add('hidden');
