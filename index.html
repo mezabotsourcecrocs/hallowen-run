@@ -608,8 +608,11 @@
   }
 
   /* MOBILE */
-  #mobileJump { display: none; position: absolute; bottom: 0; left: 0; right: 0; height: 30%; background: transparent; cursor: pointer; z-index: 10; }
+  #mobileJump { display: none; position: absolute; bottom: 0; left: 0; right: 0; height: 30%; background: transparent; cursor: pointer; z-index: 10; pointer-events: none; }
   @media (pointer: coarse) { #mobileJump { display: block; } }
+  /* Area tap-jump ini HARUS mati kalau tidak sedang main, supaya tidak menghalangi
+     tombol di layar lain (Game Over, Menu, dll) yang posisinya di bawah layar */
+  body.in-game #mobileJump { pointer-events: auto; }
 </style>
 </head>
 <body>
@@ -1866,6 +1869,7 @@ function jump(){
 function die(){if(player.dead)return;player.dead=true;state='dead';if(score>hiScore)hiScore=score;comboCount=0;comboTimer=0;document.getElementById('comboBox').classList.remove('show');sfxDie();flash('rgba(180,0,0,.65)',.75);triggerShake(10);vibrate([100,50,100,50,200]);spawnPart(player.x,player.y-20,'#FF6B35',10);setTimeout(showGameOver,950);}
 function showGameOver(){
   cancelAnimationFrame(raf);
+  document.body.classList.remove('in-game'); // matikan area tap-jump supaya tombol Game Over bisa dipencet
   const s=Math.floor(score);document.getElementById('gameOverScore').textContent=s;
   const prEl=document.getElementById('prizeWon');
   const clm=document.getElementById('claimSection');
@@ -1988,6 +1992,7 @@ function resetGame(){
   player.y=GROUND_Y;player.vy=0;player.jumps=0;player.dead=false;player.runFrame=0;player.runTick=0;
 }
 function startGame(){
+  document.body.classList.add('in-game'); // aktifkan lagi area tap-jump mobile
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('gameOverScreen').classList.add('hidden');
   const gl = document.getElementById('gameLoader');
