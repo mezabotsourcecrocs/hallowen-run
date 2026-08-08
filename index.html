@@ -177,7 +177,7 @@
     padding: 16px 10px;
     min-height: 220px;
   }
-  #costumePreviewCanvas { image-rendering: pixelated; }
+  #costumePreviewCanvas { image-rendering: pixelated; position: static; }
   .costume-preview-name {
     margin-top: 10px; font-size: 13px; font-weight: 900;
     color: #FFD166; text-align: center; letter-spacing: 0.3px;
@@ -1445,9 +1445,11 @@ function detectLowEndDevice(){
   try{
     const cores = navigator.hardwareConcurrency || 4;
     const mem = navigator.deviceMemory || 4; // GB, tidak semua browser support
-    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    // Hanya berdasarkan spesifikasi mentah (core CPU & RAM), tidak lagi memakai
+    // deteksi layar sentuh — banyak laptop/PC bagus juga punya layar sentuh,
+    // jadi itu bukan indikator device lemah.
     if(mem <= 2 || cores <= 2) return 'superlow';
-    if(isTouch && (mem <= 4 || cores <= 4)) return 'low';
+    if(mem <= 4 || cores <= 4) return 'low';
   }catch(e){}
   return 'high';
 }
@@ -1485,6 +1487,19 @@ function drawCrocs(x,y,dead){
   const lo=dead?0:Math.sin(player.runFrame*.6)*6;
   const blink=hitCD>0&&Math.floor(hitCD/5)%2===0;
   const c=selectedCostume;
+
+  // ── KARAKTER BENTUK BARU (bukan sepatu Crocs) — pakai sprite emoji ──
+  if(c.shape==='sprite'){
+    ctx.save();
+    if(blink)ctx.globalAlpha=0.35;
+    const bobY = dead?0:lo*0.6;
+    const sz = Math.round(PLAYER_SIZE*(c.spriteScale||1));
+    if(dead){ctx.translate(x,y-PLAYER_SIZE/2+10);ctx.rotate(Math.PI/2.6);ctx.globalAlpha=(blink?0.35:1);drawEmoji(c.sprite,0,0,sz);ctx.restore();return;}
+    drawEmoji(c.sprite,x,y-PLAYER_SIZE/2+bobY,sz);
+    ctx.restore();
+    return;
+  }
+
   ctx.save();
   if(blink)ctx.globalAlpha=0.35;
   if(dead){ctx.translate(x,y-PLAYER_SIZE/2+10);ctx.rotate(Math.PI/4);}
@@ -2014,9 +2029,6 @@ function startGame(){
 function loop(ts){
   raf=requestAnimationFrame(loop);frameCount++;
 
-  // Super Low: skip setiap frame ganjil (efektif 30fps, kurangi CPU ~50%)
-  if(gfxQuality==='superlow' && frameCount%2===1 && state==='running') return;
-
   const dt=Math.min((ts-lastTS)/1000,.05);lastTS=ts;
 
   // Screen shake — geser #stage sementara
@@ -2162,6 +2174,19 @@ function drawCostumePreview(costume){
   const w = costumePreviewCanvas.width, h = costumePreviewCanvas.height;
   pctx.clearRect(0,0,w,h);
   const cx = w/2, cy = h/2+10;
+
+  // ── Karakter baru berbentuk sprite emoji (bukan sepatu Crocs) ──
+  if(costume.shape==='sprite'){
+    const sz = Math.round(90*(costume.spriteScale||1));
+    pctx.save();
+    pctx.font = sz+'px serif';
+    pctx.textAlign = 'center';
+    pctx.textBaseline = 'middle';
+    pctx.fillText(costume.sprite, cx, cy);
+    pctx.restore();
+    return;
+  }
+
   const ps = 42; // ukuran preview lebih besar dari in-game
   pctx.save();
   pctx.translate(cx, cy);
@@ -2191,8 +2216,8 @@ function renderCostumeGrid(){
   if(!panel) return;
   panel.innerHTML=COSTUMES.map(c=>`
     <button class="costume-color-btn ${c.id===selectedCostume.id?'selected':''}" data-id="${c.id}">
-      <span class="costume-color-dot" style="background:${c.body};"></span>
-      <span class="costume-color-btn-name">${c.emoji} ${c.name}</span>
+      <span class="costume-color-dot" style="${c.shape==='sprite'?`background:rgba(255,255,255,0.06);font-size:14px;display:flex;align-items:center;justify-content:center;`:`background:${c.body};`}">${c.shape==='sprite'?c.sprite:''}</span>
+      <span class="costume-color-btn-name">${c.shape==='sprite'?'':c.emoji+' '}${c.name}</span>
     </button>
   `).join('');
   panel.querySelectorAll('.costume-color-btn').forEach(btn=>{
