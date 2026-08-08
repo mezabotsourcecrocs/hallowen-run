@@ -2,18 +2,18 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>👟 Source Crocs Halloween Run!</title>
 <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; height: 100%; background: #0D0010; overflow: hidden; font-family: 'Nunito', sans-serif; color: #fff; }
-  #gameWrap { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0D0010; }
-  #stage { position: relative; flex-shrink: 0; }
+  html, body { width: 100%; height: 100%; height: 100dvh; background: #0D0010; overflow: hidden; font-family: 'Nunito', sans-serif; color: #fff; }
+  #gameWrap { width: 100vw; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0D0010; }
+  #stage { position: relative; flex-shrink: 0; transform-origin: center center; }
   canvas { display: block; image-rendering: pixelated; cursor: pointer; position: absolute; top: 0; left: 0; }
   #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px; pointer-events: none; }
   /* Sembunyikan HUD saat di menu — ditampilkan lagi via JS saat game mulai */
-  #hud.hud-hidden, #skillBar.hud-hidden, #comboBox.hud-hidden { opacity: 0; pointer-events: none; }
+  #hud.hud-hidden, #skillBar.hud-hidden, #comboBox.hud-hidden { opacity: 0 !important; pointer-events: none !important; }
   #scoreBox { background: rgba(0,0,0,0.5); border: 2px solid #FF6B35; border-radius: 12px; padding: 6px 14px; font-family: 'Creepster', cursive; font-size: 22px; color: #FFD166; letter-spacing: 1px; text-shadow: 0 0 10px #FF6B35; }
   #tiersBox { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
   .tier-badge { background: rgba(0,0,0,0.5); border: 1.5px solid #444; border-radius: 8px; padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.6; transition: all 0.3s; }
@@ -27,7 +27,8 @@
   #startScreen .screen-title,
   #startScreen .start-emoji { text-shadow: 0 0 30px #FF6B35, 0 0 60px rgba(255,107,53,0.6), 0 2px 8px rgba(0,0,0,0.8); }
   .screen.hidden { display: none; }
-  .screen-title { font-family: 'Creepster', cursive; font-size: clamp(36px,8vw,72px); color: #FF6B35; text-shadow: 0 0 30px #FF6B35, 0 0 60px rgba(255,107,53,0.4); line-height: 1.1; margin-bottom: 6px; }
+  .screen-title { font-family: 'Creepster', cursive; font-size: clamp(28px,6.5vw,64px); color: #FF6B35; text-shadow: 0 0 30px #FF6B35, 0 0 60px rgba(255,107,53,0.4); line-height: 1.15; letter-spacing: 1px; text-align: center; margin-bottom: 10px; }
+  #startScreen .screen-title { font-size: clamp(20px,6.2vw,56px); white-space: nowrap; }
   .screen-sub { font-size: clamp(13px,3vw,17px); color: #b89ec9; margin-bottom: 24px; line-height: 1.6; }
   .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; transition: all 0.2s; text-decoration: none; }
   .btn-primary { background: linear-gradient(135deg,#FF6B35,#e63900); color: #fff; box-shadow: 0 4px 20px rgba(255,107,53,0.5); }
@@ -35,7 +36,7 @@
   .btn-green { background: linear-gradient(135deg,#39FF14,#20c400); color: #0D0010; box-shadow: 0 4px 20px rgba(57,255,20,0.4); }
   .btn-ghost { background: transparent; border: 2px solid #444; color: #888; }
   .btn-ghost:hover { border-color: #888; color: #ccc; }
-  .start-emoji { font-size: clamp(50px,12vw,90px); margin-bottom: 8px; }
+  .start-emoji { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: clamp(42px,9vw,76px); line-height: 1; margin-bottom: 10px; }
   .controls-hint { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
   .control-pill { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 14px; font-size: 12px; color: #b89ec9; }
   .prize-preview { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; width: 100%; max-width: 320px; }
@@ -151,6 +152,16 @@
   }
   .rotate-icon { font-size: 28px; animation: rotateHint 1.6s ease-in-out infinite; flex-shrink: 0; }
   @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
+
+  /* ── MODE HEMAT PERFORMA (auto aktif di device low-end / grafis Low & Super Low) ── */
+  /* backdrop-filter blur & animasi CSS infinite cukup berat di GPU HP low-end, matikan supaya lebih ringan */
+  body.perf-lite .screen,
+  body.perf-lite #startScreen,
+  body.perf-lite #htpOverlay,
+  body.perf-lite #deviceTutorialOverlay { backdrop-filter: none; }
+  body.perf-lite .tier-badge.grand.unlocked,
+  body.perf-lite #prizeWon.grand-prize,
+  body.perf-lite .rotate-icon { animation: none; }
 
   /* ── COSTUME PICKER (halaman utama) ── */
   .costume-picker-layout {
@@ -751,6 +762,10 @@
           <span class="warn-icon">⚠️</span>
           <span>Pastikan jendela browser tidak dalam mode <b>zoom terlalu kecil/besar</b> agar tampilan game tetap pas.</span>
         </div>
+        <div class="warn-box" style="background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
+          <span class="warn-icon">💡</span>
+          <span>Kalau laptop/PC kamu <b>spesifikasinya rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options ⚙️ supaya lebih ringan.</span>
+        </div>
       </div>
 
       <!-- Konten Handphone -->
@@ -768,6 +783,10 @@
           <span class="warn-icon">🚫</span>
           <span><b>Jangan aktifkan mode "Tampilan Desktop"</b> di browser HP kamu (Chrome/Safari, dll) — ini bisa membuat game tidak berfungsi dengan baik.</span>
         </div>
+        <div class="warn-box" style="margin-top:10px;background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
+          <span class="warn-icon">💡</span>
+          <span>Kalau HP kamu <b>low-end / spek rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options ⚙️ supaya lebih ringan.</span>
+        </div>
       </div>
 
       <button class="btn btn-primary htp-close" id="deviceTutorialContinueBtn" style="margin-top:16px;">✅ Mengerti, Lanjut!</button>
@@ -775,8 +794,8 @@
   </div>
 
   <div class="screen hidden" id="startScreen">
-    <div class="start-emoji">👟</div>
-    <div class="screen-title" data-i18n="title">CROCS<br>HALLOWEEN<br>RUN!</div>
+    <div class="start-emoji">👟🎃</div>
+    <div class="screen-title" data-i18n="title">CROCS HALLOWEEN RUN!</div>
     <div class="screen-sub" data-i18n="subtitle">Lari sejauh mungkin, hindari rintangan,<br>kumpulkan permen untuk Source Crocs!</div>
     <div class="menu-btn-stack">
       <button class="btn btn-primary menu-btn" id="startBtn">▶ <span data-i18n="play">Play</span></button>
@@ -887,8 +906,8 @@
     <div class="opt-row" id="optGfxRow">
       <span data-i18n="graphics">Grafis</span>
       <div class="opt-lang-switch" id="optGfxSwitch">
-        <button class="lang-btn" data-gfx="low" id="gfxBtnLow" data-i18n="gfxLow">Hemat</button>
         <button class="lang-btn" data-gfx="superlow" id="gfxBtnSuperLow" data-i18n="gfxSuperLow">Super Low</button>
+        <button class="lang-btn" data-gfx="low" id="gfxBtnLow" data-i18n="gfxLow">Hemat</button>
         <button class="lang-btn" data-gfx="high" id="gfxBtnHigh" data-i18n="gfxHigh">Tinggi</button>
       </div>
     </div>
@@ -1069,21 +1088,34 @@ const W=1280, H=600;
 canvas.width=W; canvas.height=H;
 
 const stage = document.getElementById('stage');
+stage.style.width = W + 'px';
+stage.style.height = H + 'px';
+function getViewportSize(){
+  // visualViewport lebih akurat di mobile (memperhitungkan address bar/keyboard)
+  if(window.visualViewport){
+    return { w: window.visualViewport.width, h: window.visualViewport.height };
+  }
+  return { w: window.innerWidth, h: window.innerHeight };
+}
 function resizeCanvas(){
-  const scaleX = window.innerWidth  / W;
-  const scaleY = window.innerHeight / H;
+  const vp = getViewportSize();
+  const scaleX = vp.w / W;
+  const scaleY = vp.h / H;
   const scale  = Math.min(scaleX, scaleY);
-  const sw = W * scale;
-  const sh = H * scale;
-  stage.style.width  = sw + 'px';
-  stage.style.height = sh + 'px';
-  stage.style.transform = ''; // reset, flexbox yang centering
-  canvas.style.width  = sw + 'px';
-  canvas.style.height = sh + 'px';
+  // Seluruh #stage (canvas + HUD + skill bar + heart, dll) di-scale bersama
+  // via CSS transform supaya proporsinya selalu konsisten dengan canvas,
+  // tidak ada lagi elemen HUD yang kepotong atau kegedean di HP.
+  stage.style.transform = `scale(${scale})`;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
   canvas._scale = scale;
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(resizeCanvas,150));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', resizeCanvas);
+}
 const GROUND_Y=H-110, PLAYER_SIZE=Math.round(H*0.11);
 
 // ═══════════════════════════════════════════════════════════
@@ -1264,7 +1296,7 @@ function saveCostume(id){
 // ═══════════════════════════════════════════════════════════
 const LANG = {
   id: {
-    title:         'CROCS<br>HALLOWEEN<br>RUN!',
+    title:         'CROCS HALLOWEEN RUN!',
     subtitle:      'Lari sejauh mungkin, hindari rintangan,<br>kumpulkan permen untuk Source Crocs!',
     play:          'Bermain',
     options:       'Opsi',
@@ -1312,7 +1344,7 @@ const LANG = {
     aboutPowered:  'Powered by',
   },
   en: {
-    title:         'CROCS<br>HALLOWEEN<br>RUN!',
+    title:         'CROCS HALLOWEEN RUN!',
     subtitle:      'Run as far as you can, dodge obstacles,<br>collect candy for Source Crocs!',
     play:          'Play',
     options:       'Options',
@@ -1406,19 +1438,42 @@ function applyLang(){
 // ═══════════════════════════════════════════════════════════
 //  SISTEM GRAFIS
 // ═══════════════════════════════════════════════════════════
-let gfxQuality = 'high'; // 'low' | 'high'
+let gfxQuality = 'high'; // 'low' | 'high' | 'superlow'
+
+// Deteksi otomatis device low-end (dipakai HANYA kalau user belum pernah pilih manual)
+function detectLowEndDevice(){
+  try{
+    const cores = navigator.hardwareConcurrency || 4;
+    const mem = navigator.deviceMemory || 4; // GB, tidak semua browser support
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if(mem <= 2 || cores <= 2) return 'superlow';
+    if(isTouch && (mem <= 4 || cores <= 4)) return 'low';
+  }catch(e){}
+  return 'high';
+}
 
 function loadGfx(){
-  try{ const s=localStorage.getItem('crocsGfx'); if(s==='low'||s==='high'||s==='superlow') gfxQuality=s; }catch(e){}
+  try{
+    const s=localStorage.getItem('crocsGfx');
+    if(s==='low'||s==='high'||s==='superlow'){ gfxQuality=s; return; }
+  }catch(e){}
+  // Belum ada preferensi tersimpan → deteksi otomatis biar HP low-end langsung ringan
+  gfxQuality = detectLowEndDevice();
 }
 function saveGfx(q){
   gfxQuality=q;
   try{ localStorage.setItem('crocsGfx',q); }catch(e){}
+  applyPerfClass();
+}
+function applyPerfClass(){
+  // Matikan backdrop-filter blur & animasi CSS infinite yang berat di GPU low-end
+  document.body.classList.toggle('perf-lite', gfxQuality!=='high');
 }
 function applyGfx(){
   document.querySelectorAll('.lang-btn[data-gfx]').forEach(b=>{
     b.classList.toggle('active', b.dataset.gfx===gfxQuality);
   });
+  applyPerfClass();
 }
 // Grafis dipakai di loop untuk: jumlah bintang, partikel, awan
 // Low: kurangi bintang + matikan awan + batasi partikel
@@ -1573,7 +1628,7 @@ function updateParticles(){
     ctx.globalAlpha=p.life;
     if(p.ring){
       // efek visual baru: partikel bintang kecil bercahaya untuk starburst
-      ctx.shadowColor=p.color;ctx.shadowBlur=8;
+      if(gfxQuality==='high'){ctx.shadowColor=p.color;ctx.shadowBlur=8;}
       ctx.fillStyle=p.color;
       ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life*1.3,0,Math.PI*2);ctx.fill();
     } else {
@@ -1584,7 +1639,7 @@ function updateParticles(){
   }
 }
 function addPopup(x,y,text,color,fs){popups.push({x,y,vy:-1.4,life:1,text,color:color||'#FFD166',fs:fs||17});}
-function updatePopups(){popups=popups.filter(p=>p.life>0);popups.forEach(p=>{p.y+=p.vy;p.life-=0.022;ctx.save();ctx.globalAlpha=p.life;ctx.font='bold '+Math.round(p.fs*(H/380))+'px Nunito,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=10;ctx.fillText(p.text,p.x,p.y);ctx.restore();});}
+function updatePopups(){popups=popups.filter(p=>p.life>0);popups.forEach(p=>{p.y+=p.vy;p.life-=0.022;ctx.save();ctx.globalAlpha=p.life;ctx.font='bold '+Math.round(p.fs*(H/380))+'px Nunito,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=p.color;if(gfxQuality==='high'){ctx.shadowColor=p.color;ctx.shadowBlur=10;}ctx.fillText(p.text,p.x,p.y);ctx.restore();});}
 
 // ═══════════════════════════════════════════════════════════
 //  LIVES & COMBO
@@ -1667,7 +1722,7 @@ function drawSlotArc(i,frac,total,color){
     c2.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+frac*Math.PI*2);
     c2.strokeStyle=color;c2.lineWidth=lw;
     c2.lineCap='round';
-    c2.shadowColor=color;c2.shadowBlur=6;
+    if(gfxQuality==='high'){c2.shadowColor=color;c2.shadowBlur=6;}
     c2.stroke();c2.shadowBlur=0;
   }
   // Sandal: tampilkan angka sisa di dalam circle
@@ -1721,7 +1776,7 @@ function updatePUhud(dt){
     }
   }
 }
-function drawPU(pu){ctx.save();ctx.shadowColor=pu.color;ctx.shadowBlur=12+Math.sin(pu.t*.08)*6;drawEmoji(pu.emoji,pu.x,pu.y-Math.sin(pu.t*.06)*6,pu.sz);ctx.restore();}
+function drawPU(pu){ctx.save();if(gfxQuality==='high'){ctx.shadowColor=pu.color;ctx.shadowBlur=12+Math.sin(pu.t*.08)*6;}drawEmoji(pu.emoji,pu.x,pu.y-Math.sin(pu.t*.06)*6,pu.sz);ctx.restore();}
 
 // ── SANDAL ORBIT: 3 sandal berputar mengelilingi player
 function drawSandalOrbit(){
@@ -1736,7 +1791,7 @@ function drawSandalOrbit(){
     ctx.save();
     ctx.translate(sx,sy);
     ctx.rotate(angle+Math.PI/2); // sandal selalu "menghadap" arah putar
-    ctx.shadowColor='#FF6B35';ctx.shadowBlur=12;
+    if(gfxQuality==='high'){ctx.shadowColor='#FF6B35';ctx.shadowBlur=12;}
     const ec=getEC('👡',sz);
     ctx.drawImage(ec,-ec.width/2,-ec.height/2);
     ctx.restore();
@@ -1793,7 +1848,7 @@ function jump(){
     sfxJump();
   }
 }
-function die(){if(player.dead)return;player.dead=true;state='dead';if(score>hiScore)hiScore=score;sfxDie();flash('rgba(180,0,0,.65)',.75);triggerShake(10);vibrate([100,50,100,50,200]);spawnPart(player.x,player.y-20,'#FF6B35',10);setTimeout(showGameOver,950);}
+function die(){if(player.dead)return;player.dead=true;state='dead';if(score>hiScore)hiScore=score;comboCount=0;comboTimer=0;document.getElementById('comboBox').classList.remove('show');sfxDie();flash('rgba(180,0,0,.65)',.75);triggerShake(10);vibrate([100,50,100,50,200]);spawnPart(player.x,player.y-20,'#FF6B35',10);setTimeout(showGameOver,950);}
 function showGameOver(){
   cancelAnimationFrame(raf);
   const s=Math.floor(score);document.getElementById('gameOverScore').textContent=s;
@@ -1822,6 +1877,7 @@ function showGameOver(){
     submitMsg.textContent='';
   }
   document.getElementById('gameOverScreen').classList.remove('hidden');
+  hideHUD(); // ← sembunyikan skill bar & combo saat game over
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1898,6 +1954,7 @@ function hideHUD(){
   document.getElementById('hud').classList.add('hud-hidden');
   document.getElementById('skillBar').classList.add('hud-hidden');
   document.getElementById('comboBox').classList.add('hud-hidden');
+  document.getElementById('comboBox').classList.remove('show'); // ← pastikan notifikasi combo ikut hilang total
 }
 
 function resetGame(){
@@ -2037,7 +2094,7 @@ function loop(ts){
   }
 
   // Rush visual — vignette oranye berpendar + teks RUSH
-  if(isRush && gfxQuality!=='superlow'){
+  if(isRush && gfxQuality==='high'){
     const _pulse=0.18+0.1*Math.sin(frameCount*.25);
     const _vig=ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.75);
     _vig.addColorStop(0,'rgba(0,0,0,0)');
@@ -2079,7 +2136,7 @@ function loop(ts){
     // Player glow — kini termasuk score2x (hijau) dan superjump (pink)
     const glowMap={shield:'#00cfff',slow:'#cc88ff',magnet:'#ffaa00',score2x:'#39FF14',superjump:'#ff66cc'};
     const gk=Object.keys(glowMap).find(k=>activePU[k]>0);
-    if(gk && gfxQuality!=='superlow'){ctx.save();ctx.shadowColor=glowMap[gk];ctx.shadowBlur=18;drawCrocs(player.x,player.y,player.dead);ctx.restore();}
+    if(gk && gfxQuality==='high'){ctx.save();ctx.shadowColor=glowMap[gk];ctx.shadowBlur=18;drawCrocs(player.x,player.y,player.dead);ctx.restore();}
     else drawCrocs(player.x,player.y,player.dead);
   }
   if(sandalCount>0)drawSandalOrbit();
