@@ -10,18 +10,21 @@
   html, body { width: 100%; height: 100%; height: 100dvh; background: #0D0010; overflow: hidden; font-family: 'Nunito', sans-serif; color: #fff; }
   #gameWrap { width: 100vw; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0D0010; }
   #stage { position: relative; flex-shrink: 0; transform-origin: center center; }
-  canvas { display: block; image-rendering: pixelated; cursor: pointer; position: absolute; top: 0; left: 0; }
-  #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px; pointer-events: none; }
+  canvas { display: block; image-rendering: pixelated; cursor: pointer; position: absolute; top: 0; left: 0; z-index: 1; }
+  #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px; pointer-events: none; z-index: 5; }
   /* Sembunyikan HUD saat di menu — ditampilkan lagi via JS saat game mulai */
   #hud.hud-hidden, #skillBar.hud-hidden, #comboBox.hud-hidden { opacity: 0 !important; pointer-events: none !important; }
-  #scoreBox { background: rgba(0,0,0,0.5); border: 2px solid #FF6B35; border-radius: 12px; padding: 6px 14px; font-family: 'Creepster', cursive; font-size: 22px; color: #FFD166; letter-spacing: 1px; text-shadow: 0 0 10px #FF6B35; }
+  #scoreBox { display: flex; align-items: center; gap: 8px; background: linear-gradient(180deg,rgba(30,10,20,0.75),rgba(10,0,10,0.75)); border: 1.5px solid rgba(255,107,53,0.55); border-radius: 14px; padding: 6px 14px 6px 8px; box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
+  #scoreBox .score-icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,107,53,0.18); font-size: 15px; flex-shrink: 0; }
+  #scoreBox #scoreDisplay { font-family: 'Creepster', cursive; font-size: 22px; color: #FFD166; letter-spacing: 1px; }
   #tiersBox { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
-  .tier-badge { background: rgba(0,0,0,0.5); border: 1.5px solid #444; border-radius: 8px; padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.6; transition: all 0.3s; }
-  .tier-badge.unlocked { border-color: #39FF14; color: #39FF14; opacity: 1; text-shadow: 0 0 8px #39FF14; }
+  .tier-badge { background: linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.2)); border: 1.5px solid #444; border-radius: 10px; padding: 4px 11px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.6; transition: all 0.3s; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  .tier-badge.unlocked { border-color: #39FF14; color: #39FF14; opacity: 1; background: linear-gradient(180deg,rgba(57,255,20,0.14),rgba(57,255,20,0.03)); }
   .tier-badge.grand { border-color: #FFD166; color: #FFD166; }
-  .tier-badge.grand.unlocked { border-color: #FFD166; color: #FFD166; text-shadow: 0 0 12px #FFD166; animation: grandPulse 1s ease-in-out infinite; }
+  .tier-badge.grand.unlocked { border-color: #FFD166; color: #FFD166; background: linear-gradient(180deg,rgba(255,209,102,0.16),rgba(255,209,102,0.03)); animation: grandPulse 1s ease-in-out infinite; }
   @keyframes grandPulse { 0%,100% { box-shadow: 0 0 6px #FFD166; } 50% { box-shadow: 0 0 20px #FFD166; } }
-  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; padding: 20px; text-align: center; background: rgba(13,0,16,0.92); backdrop-filter: blur(4px); overflow-y: auto; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; padding: 20px; text-align: center; background: rgba(13,0,16,0.92); backdrop-filter: blur(4px); overflow-y: auto; z-index: 20; }
+  canvas { touch-action: none; }
   /* Start screen: lebih transparan supaya canvas Halloween yang animasi di belakang terlihat sebagai "live preview" */
   #startScreen { background: rgba(13,0,16,0.62); backdrop-filter: blur(2px); }
   #startScreen .screen-title,
@@ -30,11 +33,13 @@
   .screen-title { font-family: 'Creepster', cursive; font-size: clamp(28px,6.5vw,64px); color: #FF6B35; text-shadow: 0 0 30px #FF6B35, 0 0 60px rgba(255,107,53,0.4); line-height: 1.15; letter-spacing: 1px; text-align: center; margin-bottom: 10px; }
   #startScreen .screen-title { font-size: clamp(20px,6.2vw,56px); white-space: nowrap; }
   .screen-sub { font-size: clamp(13px,3vw,17px); color: #b89ec9; margin-bottom: 24px; line-height: 1.6; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; transition: all 0.2s; text-decoration: none; }
-  .btn-primary { background: linear-gradient(135deg,#FF6B35,#e63900); color: #fff; box-shadow: 0 4px 20px rgba(255,107,53,0.5); }
-  .btn-primary:hover { transform: scale(1.06); }
-  .btn-green { background: linear-gradient(135deg,#39FF14,#20c400); color: #0D0010; box-shadow: 0 4px 20px rgba(57,255,20,0.4); }
-  .btn-ghost { background: transparent; border: 2px solid #444; color: #888; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.5px; transition: all 0.2s; text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .btn-primary { background: linear-gradient(135deg,#FF6B35,#e63900); color: #fff; box-shadow: 0 3px 0 rgba(140,40,0,0.6); }
+  .btn-primary:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(140,40,0,0.6); }
+  .btn-green { background: linear-gradient(135deg,#39FF14,#20c400); color: #0D0010; box-shadow: 0 3px 0 rgba(10,90,0,0.5); }
+  .btn-green:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(10,90,0,0.5); }
+  .btn-ghost { background: rgba(255,255,255,0.03); border: 2px solid #444; color: #999; }
+  .btn-ghost:active { transform: translateY(1px); }
   .btn-ghost:hover { border-color: #888; color: #ccc; }
   .start-emoji { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: clamp(42px,9vw,76px); line-height: 1; margin-bottom: 10px; }
   .controls-hint { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
@@ -55,16 +60,26 @@
     padding: 16px;
   }
   #htpOverlay.hidden { display: none; }
+  #howToGetCodeOverlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30;
+    padding: 16px;
+  }
+  #howToGetCodeOverlay.hidden { display: none; }
   #htpCard {
     background: linear-gradient(160deg,#1A0A2E,#2d0a3e);
     border: 2px solid rgba(255,107,53,0.4);
+    border-top: 3px solid #FF6B35;
     border-radius: 20px;
     width: 100%; max-width: 420px;
     max-height: 85vh;
     overflow-y: auto;
     padding: 22px 20px;
     text-align: left;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.6);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.35);
   }
   #htpCard::-webkit-scrollbar { width: 6px; }
   #htpCard::-webkit-scrollbar-thumb { background: rgba(255,107,53,0.4); border-radius: 4px; }
@@ -84,7 +99,8 @@
   }
   .htp-row {
     display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.04);
+    background: linear-gradient(90deg,rgba(255,107,53,0.06),rgba(255,255,255,0.02));
+    border-left: 2.5px solid rgba(255,107,53,0.4);
     border-radius: 10px;
     padding: 7px 10px;
     margin-bottom: 6px;
@@ -101,12 +117,98 @@
     margin-top: 10px;
   }
 
+  /* ── INPUT CODE 6 DIGIT (XXX-XXX) ── */
+  .code-hero-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,rgba(255,107,53,0.22),rgba(255,209,102,0.08));
+    border: 2px solid rgba(255,209,102,0.4);
+    font-size: 32px;
+    margin-bottom: 6px;
+  }
+  .code-card {
+    width: 100%; max-width: 300px;
+    background: linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  }
+  .code-input {
+    width: 100%;
+    background: rgba(0,0,0,0.35);
+    border: 2px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(22px,6.5vw,30px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-align: center;
+    text-transform: uppercase;
+    color: #FFD166;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .code-input:focus { border-color: #FF6B35; box-shadow: 0 0 0 3px rgba(255,107,53,0.25); }
+  .code-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 4px; }
+  .code-hint { margin-top: 10px; font-size: 11px; color: #7a6a8a; letter-spacing: 0.3px; }
+  .code-error-msg { margin-top: 8px; font-size: 12.5px; color: #ff8080; font-weight: 700; }
+  .code-links { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; align-items: center; }
+  .code-link-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12.5px; font-weight: 700;
+    color: #b89ec9;
+    padding: 6px 10px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .code-link-btn:hover { color: #FFD166; }
+
+  /* ── KARTU PILIH MODE BERMAIN (Code / Latihan) ── */
+  .mode-card-stack { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px; margin-top: 6px; }
+  .mode-card {
+    display: flex; align-items: center; gap: 14px;
+    border-radius: 18px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    border: 2px solid transparent;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .mode-card:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+  .mode-card-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 50%;
+    font-size: 24px;
+  }
+  .mode-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .mode-card-title { font-size: 15px; font-weight: 900; color: #fff; }
+  .mode-card-desc { font-size: 11.5px; color: #b89ec9; }
+  .mode-card-tag { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; width: fit-content; }
+  .mode-card-arrow { font-size: 18px; color: rgba(255,255,255,0.35); flex-shrink: 0; }
+
+  .mode-card-code { background: linear-gradient(135deg,rgba(255,107,53,0.16),rgba(255,209,102,0.06)); border-color: rgba(255,209,102,0.4); }
+  .mode-card-code:hover { border-color: #FFD166; }
+  .mode-card-code .mode-card-icon { background: rgba(255,209,102,0.2); }
+  .mode-card-code .mode-card-tag { background: rgba(255,209,102,0.18); color: #FFD166; }
+
+  .mode-card-practice { background: linear-gradient(135deg,rgba(57,255,20,0.10),rgba(0,180,120,0.05)); border-color: rgba(57,255,20,0.3); }
+  .mode-card-practice:hover { border-color: #39FF14; }
+  .mode-card-practice .mode-card-icon { background: rgba(57,255,20,0.15); }
+  .mode-card-practice .mode-card-tag { background: rgba(57,255,20,0.15); color: #39FF14; }
+
   /* ── DEVICE SELECT SCREEN ── */
   #deviceScreen { z-index: 25; background: rgba(13,0,16,0.96); }
   .device-btn-stack { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 300px; margin-top: 10px; }
   .device-choice-btn {
     display: flex; align-items: center; gap: 14px;
-    background: rgba(255,255,255,0.05);
+    background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
     border: 2px solid rgba(255,255,255,0.15);
     border-radius: 16px;
     padding: 16px 18px;
@@ -114,10 +216,18 @@
     text-align: left;
     color: #fff;
     font-family: 'Nunito', sans-serif;
-    transition: all 0.2s;
+    transition: transform 0.15s, border-color 0.15s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
   }
-  .device-choice-btn:hover { border-color: #FF6B35; background: rgba(255,107,53,0.1); transform: translateY(-2px); }
-  .device-choice-icon { font-size: 34px; flex-shrink: 0; }
+  .device-choice-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+  .device-choice-btn:hover { border-color: #FF6B35; }
+  .device-choice-icon {
+    font-size: 26px; flex-shrink: 0;
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,107,53,0.14);
+  }
   .device-choice-title { font-size: 15px; font-weight: 900; margin-bottom: 2px; }
   .device-choice-sub { font-size: 12px; color: #b89ec9; }
 
@@ -158,9 +268,11 @@
   body.perf-lite .screen,
   body.perf-lite #startScreen,
   body.perf-lite #htpOverlay,
+  body.perf-lite #howToGetCodeOverlay,
   body.perf-lite #deviceTutorialOverlay { backdrop-filter: none; }
   body.perf-lite .tier-badge.grand.unlocked,
   body.perf-lite #prizeWon.grand-prize,
+  body.perf-lite .ready-badge,
   body.perf-lite .rotate-icon { animation: none; }
 
   /* ── COSTUME PICKER (halaman utama) ── */
@@ -171,11 +283,21 @@
   .costume-preview-panel {
     flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.1);
+    background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.12);
     border-radius: 18px;
     padding: 16px 10px;
     min-height: 220px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .costume-preview-badge {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg,rgba(57,255,20,0.22),rgba(57,255,20,0.08));
+    border: 1.5px solid #39FF14;
+    color: #39FF14;
+    font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 20px;
   }
   #costumePreviewCanvas { image-rendering: pixelated; position: static; }
   .costume-preview-name {
@@ -191,19 +313,20 @@
   .costume-color-panel::-webkit-scrollbar-thumb { background: rgba(255,107,53,0.4); border-radius: 4px; }
   .costume-color-btn {
     display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.05);
+    background: linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015));
     border: 2px solid rgba(255,255,255,0.12);
     border-radius: 12px;
     padding: 8px 12px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform 0.15s, border-color 0.15s;
     min-width: 130px;
+    touch-action: manipulation;
   }
-  .costume-color-btn:hover { background: rgba(255,255,255,0.09); }
+  .costume-color-btn:active { transform: translateY(1px); }
+  .costume-color-btn:hover { border-color: rgba(255,255,255,0.25); }
   .costume-color-btn.selected {
     border-color: #FFD166;
-    background: rgba(255,209,102,0.12);
-    box-shadow: 0 0 12px rgba(255,209,102,0.3);
+    background: linear-gradient(180deg,rgba(255,209,102,0.16),rgba(255,209,102,0.04));
   }
   .costume-color-dot {
     width: 22px; height: 22px; border-radius: 50%;
@@ -224,16 +347,17 @@
   .help-card-list { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 340px; margin-bottom: 16px; }
   .help-card {
     display: flex; align-items: center; gap: 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1.5px solid rgba(255,255,255,0.1);
+    background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.12);
     border-radius: 16px;
     padding: 14px 16px;
     text-decoration: none;
     color: var(--text, #e8d5f5);
     transition: background 0.2s, border-color 0.2s, transform 0.15s;
     cursor: pointer;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
   }
-  .help-card:hover { background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+  .help-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
   .help-card-icon {
     width: 52px; height: 52px; border-radius: 14px;
     border: 1.5px solid transparent;
@@ -248,11 +372,12 @@
   .help-hours { font-size: 12px; color: #7a6a8a; text-align: center; margin-top: 4px; }
   .about-box {
     width: 100%; max-width: 340px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
+    background: linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015));
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
     padding: 14px 16px;
     margin-top: 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
   }
   .about-box-title {
     font-size: 10px; font-weight: 900; letter-spacing: 1.5px;
@@ -270,20 +395,21 @@
   .opt-row {
     display: flex; align-items: center; justify-content: space-between;
     width: 100%; max-width: 320px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
+    background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
     padding: 10px 16px;
     margin: 14px 0;
     font-size: 13px;
     color: #d8c5e8;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
   }
   .opt-toggle { padding: 6px 14px; font-size: 12px; }
   .opt-lang-switch { display: flex; gap: 6px; }
   .lang-btn {
     background: rgba(255,255,255,0.07);
     border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 5px 14px;
     color: #888;
     font-family: 'Nunito', sans-serif;
@@ -293,7 +419,7 @@
     transition: all 0.15s;
   }
   .lang-btn:hover { border-color: #FF6B35; color: #FF6B35; }
-  .lang-btn.active { background: rgba(255,107,53,0.15); border-color: #FF6B35; color: #FF6B35; }
+  .lang-btn.active { background: linear-gradient(135deg,rgba(255,107,53,0.22),rgba(255,209,102,0.1)); border-color: #FF6B35; color: #FFD166; }
   .costume-label {
     font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
     color: #b89ec9; margin-bottom: 8px; text-align: center;
@@ -323,19 +449,20 @@
   }
   .costume-name { font-size: 9px; color: #d8c5e8; text-align: center; line-height: 1.2; }
   .costume-card.selected .costume-name { color: #FFD166; font-weight: 700; }
-  #gameOverScore { font-family: 'Creepster', cursive; font-size: clamp(48px,12vw,90px); color: #FFD166; text-shadow: 0 0 30px #FFD166; line-height: 1; margin-bottom: 4px; }
-  #prizeWon { margin: 12px 0; padding: 14px 24px; border-radius: 16px; font-size: 15px; font-weight: 700; max-width: 340px; }
-  #prizeWon.no-prize { background: rgba(255,255,255,0.05); border: 1.5px solid #333; color: #888; }
-  #prizeWon.has-prize { background: rgba(57,255,20,0.1); border: 2px solid #39FF14; color: #39FF14; }
-  #prizeWon.grand-prize { background: rgba(255,209,102,0.12); border: 2px solid #FFD166; color: #FFD166; animation: grandPulse 1.2s ease-in-out infinite; }
+  #gameOverScore { font-family: 'Creepster', cursive; font-size: clamp(48px,12vw,90px); color: #FFD166; text-shadow: 0 3px 0 rgba(140,90,0,0.5); line-height: 1; margin-bottom: 4px; }
+  #prizeWon { margin: 12px 0; padding: 14px 24px; border-radius: 16px; font-size: 15px; font-weight: 700; max-width: 340px; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  #prizeWon.no-prize { background: linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01)); border: 1.5px solid #333; color: #888; }
+  #prizeWon.has-prize { background: linear-gradient(180deg,rgba(57,255,20,0.14),rgba(57,255,20,0.03)); border: 2px solid #39FF14; color: #39FF14; }
+  #prizeWon.grand-prize { background: linear-gradient(180deg,rgba(255,209,102,0.16),rgba(255,209,102,0.04)); border: 2px solid #FFD166; color: #FFD166; animation: grandPulse 1.2s ease-in-out infinite; }
   #nameForm { display: flex; gap: 8px; margin: 12px 0; width: 100%; max-width: 320px; }
-  #playerName { flex: 1; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 14px; outline: none; }
+  #playerName { flex: 1; background: linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03)); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 14px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
   #playerName::placeholder { color: #666; }
-  #playerName:focus { border-color: #FF6B35; }
-  #submitBtn { padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer; background: #FF6B35; color: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; transition: all 0.2s; }
+  #playerName:focus { border-color: #FF6B35; box-shadow: 0 0 0 3px rgba(255,107,53,0.2); }
+  #submitBtn { padding: 10px 18px; border-radius: 12px; border: none; cursor: pointer; background: linear-gradient(135deg,#FF6B35,#e63900); color: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; transition: transform 0.15s; box-shadow: 0 2px 0 rgba(140,40,0,0.6); touch-action: manipulation; }
+  #submitBtn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(140,40,0,0.6); }
   #submitMsg { font-size: 13px; color: #39FF14; min-height: 20px; margin-bottom: 4px; }
   #trainingBanner {
-    background: rgba(255,170,0,0.12);
+    background: linear-gradient(180deg,rgba(255,170,0,0.14),rgba(255,170,0,0.04));
     border: 2px solid #ffaa00;
     border-radius: 14px;
     padding: 12px 20px;
@@ -345,10 +472,14 @@
     text-align: center;
     max-width: 320px;
     line-height: 1.6;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
   }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
   #lbList { width: 100%; max-width: 380px; max-height: 50vh; overflow-y: auto; margin: 16px 0; display: flex; flex-direction: column; gap: 6px; }
-  .lb-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 9px 14px; font-size: 13px; }
+  .lb-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 9px 14px; font-size: 13px; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  .lb-row.top1 { border-color: rgba(255,209,102,0.4); }
+  .lb-row.top2 { border-color: rgba(200,200,200,0.35); }
+  .lb-row.top3 { border-color: rgba(205,127,50,0.4); }
   .lb-row .rank { color: #888; font-weight: 700; }
   .lb-row.top1 .rank { color: #FFD166; font-size: 16px; }
   .lb-row.top2 .rank { color: #ccc; }
@@ -356,7 +487,7 @@
   .lb-row .lb-score { color: #FF6B35; font-weight: 900; }
   .lb-empty { color: #555; font-size: 14px; padding: 20px; }
   /* LIVES */
-  #livesBox { display: flex; gap: 4px; background: rgba(0,0,0,0.55); border: 2px solid rgba(255,60,60,0.5); border-radius: 12px; padding: 5px 10px; font-size: clamp(14px,4vw,18px); pointer-events: none; align-items: center; }
+  #livesBox { display: flex; gap: 5px; background: linear-gradient(180deg,rgba(40,5,10,0.75),rgba(15,0,5,0.75)); border: 1.5px solid rgba(255,60,60,0.55); border-radius: 14px; padding: 6px 12px; font-size: clamp(14px,4vw,18px); pointer-events: none; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
   /* COMBO */
   #comboBox { position: absolute; top: 56px; left: 50%; transform: translateX(-50%) scale(0.8); font-family: 'Creepster', cursive; font-size: 28px; color: #FFD166; text-shadow: 0 0 16px #FF6B35; pointer-events: none; opacity: 0; white-space: nowrap; transition: opacity 0.15s, transform 0.15s; z-index: 15; }
   #comboBox.show { opacity: 1; transform: translateX(-50%) scale(1); }
@@ -368,12 +499,17 @@
     bottom: 14px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 10px; align-items: center;
     pointer-events: none; z-index: 15;
+    background: linear-gradient(180deg,rgba(20,5,15,0.6),rgba(10,0,10,0.6));
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    padding: 7px 12px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.35);
   }
   #skillBar.hud-hidden { opacity: 0; pointer-events: none; }
   .skill-label {
     font-family: 'Nunito', sans-serif;
     font-size: 9px; font-weight: 900;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.45);
     letter-spacing: 1px;
     text-transform: uppercase;
     margin-right: 2px;
@@ -383,7 +519,11 @@
     position: relative;
     width: 46px; height: 46px;
     flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.14);
   }
+  .skill-slot.active { border-color: rgba(255,209,102,0.6); background: rgba(255,209,102,0.08); }
   .skill-slot canvas {
     position: absolute; top: 0; left: 0;
     width: 46px !important; height: 46px !important;
@@ -399,12 +539,27 @@
   }
   .skill-slot.empty .skill-slot-emoji { opacity: 0.18; font-size: 14px; }
   .skill-slot.active .skill-slot-emoji { transform: scale(1.1); }
+  .skill-slot-timer {
+    position: absolute; bottom: -5px; right: -5px;
+    background: linear-gradient(135deg,#FF6B35,#e63900);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 9px; font-weight: 900;
+    min-width: 16px; height: 16px;
+    border-radius: 50%;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 0 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+    z-index: 3;
+  }
+  .skill-slot-timer.show { display: flex; }
   .pu-timer { font-size: 11px; font-weight: 900; min-width: 16px; text-align: right; }
   /* MUTE */
   
   /* FLASH + MILESTONE */
   #flashOverlay { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 5; }
-  #milestoneBanner { position: absolute; top: 45%; left: 50%; transform: translate(-50%,-50%) scale(0.5); font-family: 'Creepster', cursive; font-size: clamp(24px,5vw,44px); text-align: center; pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 6; }
+  #milestoneBanner { position: absolute; top: 45%; left: 50%; transform: translate(-50%,-50%) scale(0.5); font-family: 'Creepster', cursive; font-size: clamp(24px,5vw,44px); text-align: center; pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 6; padding: 4px 22px; border-radius: 50px; background: rgba(0,0,0,0.35); }
   #milestoneBanner.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
 
   /* ══════════════════════════════════════════════════
@@ -590,7 +745,7 @@
   }
   #readyOverlay.hidden { display: none; }
   .ready-badge {
-    background: rgba(0,0,0,0.55);
+    background: linear-gradient(180deg,rgba(20,10,15,0.7),rgba(0,0,0,0.6));
     border: 2px solid rgba(255,209,102,0.6);
     border-radius: 50px;
     padding: 12px 26px;
@@ -598,7 +753,8 @@
     font-weight: 900;
     font-size: 15px;
     color: #FFD166;
-    text-shadow: 0 0 12px rgba(255,209,102,0.5);
+    text-shadow: 0 2px 0 rgba(140,90,0,0.5);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
     animation: readyPulse 1s ease-in-out infinite;
     letter-spacing: 0.5px;
   }
@@ -697,7 +853,7 @@
   </div>
   <div id="hud" class="hud-hidden">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div id="scoreBox">🎃 <span id="scoreDisplay">0</span></div>
+      <div id="scoreBox"><span class="score-icon">🎃</span><span id="scoreDisplay">0</span></div>
       <div id="livesBox">❤️❤️❤️</div>
     </div>
     <div id="tiersBox">
@@ -715,10 +871,10 @@
   <div id="skillBar" class="hud-hidden">
     <span class="skill-label">Skills</span>
     <div class="skill-slots" id="skillSlots">
-      <div class="skill-slot empty" id="slot0"><canvas width="46" height="46" id="slotCanvas0"></canvas><div class="skill-slot-emoji" id="slotEmoji0">·</div></div>
-      <div class="skill-slot empty" id="slot1"><canvas width="46" height="46" id="slotCanvas1"></canvas><div class="skill-slot-emoji" id="slotEmoji1">·</div></div>
-      <div class="skill-slot empty" id="slot2"><canvas width="46" height="46" id="slotCanvas2"></canvas><div class="skill-slot-emoji" id="slotEmoji2">·</div></div>
-      <div class="skill-slot empty" id="slot3"><canvas width="46" height="46" id="slotCanvas3"></canvas><div class="skill-slot-emoji" id="slotEmoji3">·</div></div>
+      <div class="skill-slot empty" id="slot0"><canvas width="46" height="46" id="slotCanvas0"></canvas><div class="skill-slot-emoji" id="slotEmoji0">·</div><div class="skill-slot-timer" id="slotTimer0"></div></div>
+      <div class="skill-slot empty" id="slot1"><canvas width="46" height="46" id="slotCanvas1"></canvas><div class="skill-slot-emoji" id="slotEmoji1">·</div><div class="skill-slot-timer" id="slotTimer1"></div></div>
+      <div class="skill-slot empty" id="slot2"><canvas width="46" height="46" id="slotCanvas2"></canvas><div class="skill-slot-emoji" id="slotEmoji2">·</div><div class="skill-slot-timer" id="slotTimer2"></div></div>
+      <div class="skill-slot empty" id="slot3"><canvas width="46" height="46" id="slotCanvas3"></canvas><div class="skill-slot-emoji" id="slotEmoji3">·</div><div class="skill-slot-timer" id="slotTimer3"></div></div>
     </div>
   </div>
   <div id="flashOverlay"></div>
@@ -809,12 +965,91 @@
     </div>
     <button class="btn btn-ghost" id="lbBtnStart" style="margin-top:18px;">🏅 <span data-i18n="leaderboard">Leaderboard</span></button>
   </div>
+
+  <!-- PILIH MODE: Bermain dengan Code / Latihan -->
+  <div class="screen hidden" id="playChoiceScreen">
+    <div class="start-emoji">🎮</div>
+    <div class="screen-title" style="font-size:clamp(24px,5.5vw,40px);">Pilih Mode<br>Bermain</div>
+    <div class="screen-sub">Mau langsung tanding pakai Code, atau latihan dulu?</div>
+    <div class="mode-card-stack">
+      <button class="mode-card mode-card-code" id="playWithCodeBtn">
+        <span class="mode-card-icon">🔑</span>
+        <span class="mode-card-body">
+          <span class="mode-card-title">Bermain Dengan Code</span>
+          <span class="mode-card-desc">Skor tercatat & dapat hadiah</span>
+          <span class="mode-card-tag">🏆 Dapat Hadiah!</span>
+        </span>
+        <span class="mode-card-arrow">→</span>
+      </button>
+      <button class="mode-card mode-card-practice" id="playPracticeBtn">
+        <span class="mode-card-icon">🕹️</span>
+        <span class="mode-card-body">
+          <span class="mode-card-title">Latihan Bermain</span>
+          <span class="mode-card-desc">Coba dulu, skor tidak dihitung</span>
+          <span class="mode-card-tag">✨ Gratis & Santai</span>
+        </span>
+        <span class="mode-card-arrow">→</span>
+      </button>
+    </div>
+    <button class="btn btn-ghost" id="playChoiceBackBtn" style="margin-top:18px;">← Kembali</button>
+  </div>
+
+  <!-- INPUT CODE 6 DIGIT -->
+  <div class="screen hidden" id="codeEntryScreen">
+    <span class="code-hero-icon">🔑</span>
+    <div class="screen-title" style="font-size:clamp(24px,5.5vw,38px);">Masukkan Code</div>
+    <div class="screen-sub">Masukkan 6 digit code yang kamu punya</div>
+
+    <div class="code-card">
+      <input type="text" id="codeInput" class="code-input" placeholder="XXX-XXX" maxlength="7" autocomplete="off" autocapitalize="characters" inputmode="text">
+      <div class="code-hint">Format: 3 karakter — 3 karakter</div>
+      <div id="codeErrorMsg" class="code-error-msg" style="display:none;">⚠️ Code harus 6 digit ya!</div>
+    </div>
+
+    <button class="btn btn-primary" id="codeVerifyBtn" style="margin-top:16px;min-width:220px;">✅ Verifikasi Code</button>
+
+    <div class="code-links">
+      <button class="code-link-btn" id="codeHelpBtn">❓ Code tidak berfungsi/salah? <u>Bantuan</u></button>
+      <button class="code-link-btn" id="codeBackBtn">← Kembali</button>
+    </div>
+  </div>
+
+  <!-- TUTORIAL: CARA MENDAPATKAN CODE -->
+  <div id="howToGetCodeOverlay" class="hidden">
+    <div id="htpCard">
+      <div class="htp-title">🔑 Cara Mendapatkan Code</div>
+      <div class="htp-section">
+        <h4>🛍️ Langkahnya gampang!</h4>
+        <div class="htp-row"><span class="htp-icon">1️⃣</span><span>Buka website <b>source.crocs</b> dan pilih produk Crocs favoritmu</span></div>
+        <div class="htp-row"><span class="htp-icon">2️⃣</span><span>Beli minimal <b>1pcs Crocs</b> dari source.crocs</span></div>
+        <div class="htp-row"><span class="htp-icon">3️⃣</span><span>Setelah pembayaran berhasil, kamu akan menerima <b>6 digit Code</b> (format XXX-XXX)</span></div>
+        <div class="htp-row"><span class="htp-icon">4️⃣</span><span>Masukkan Code itu di menu <b>Bermain Dengan Code</b> untuk mulai main & rebut hadiahnya!</span></div>
+      </div>
+      <div class="warn-box" style="background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
+        <span class="warn-icon">💡</span>
+        <span>Belum sempat checkout? Chat dulu lewat menu <b>Bantuan</b> ya, tim kami siap bantu!</span>
+      </div>
+      <button class="btn btn-primary htp-close" id="howToGetCodeCloseBtn" style="margin-top:16px;">✅ Mengerti!</button>
+    </div>
+  </div>
+
   <!-- HELP SCREEN -->
   <div class="screen hidden" id="helpScreen">
     <div class="screen-title" style="font-size:clamp(26px,5vw,42px);">💬 <span data-i18n="help">Bantuan</span></div>
     <div class="screen-sub" data-i18n="helpSub" style="margin-bottom:20px;">Ada pertanyaan atau masalah? Hubungi kami!</div>
 
     <div class="help-card-list">
+      <!-- Cara Mendapatkan Code -->
+      <button class="help-card" id="howToGetCodeBtn" type="button" style="cursor:pointer;text-align:left;width:100%;font-family:inherit;">
+        <div class="help-card-icon" style="background:rgba(255,209,102,0.15);border-color:rgba(255,209,102,0.4);">🔑</div>
+        <div class="help-card-body">
+          <div class="help-card-title">Cara Mendapatkan Code</div>
+          <div class="help-card-value">Beli 1pcs Crocs = dapat Code main</div>
+          <div class="help-card-hint">Klik untuk lihat cara lengkapnya</div>
+        </div>
+        <div class="help-card-arrow">→</div>
+      </button>
+
       <!-- WhatsApp -->
       <a class="help-card" id="helpWALink" href="#" target="_blank" rel="noopener">
         <div class="help-card-icon" style="background:rgba(37,211,102,0.15);border-color:rgba(37,211,102,0.4);">
@@ -875,6 +1110,7 @@
 
     <div class="costume-picker-layout">
       <div class="costume-preview-panel">
+        <span class="costume-preview-badge">✓ DIPAKAI</span>
         <canvas id="costumePreviewCanvas" width="180" height="180"></canvas>
         <div class="costume-preview-name" id="costumePreviewName">Classic Orange</div>
       </div>
@@ -991,7 +1227,7 @@
 
   <div class="screen hidden" id="gameOverScreen">
     <div class="screen-title" style="font-size:clamp(28px,6vw,52px);">GAME OVER!</div>
-    <div class="screen-sub" style="margin-bottom:8px;">Skor kamu:</div>
+    <div class="screen-sub" id="gameOverScoreLabel" style="margin-bottom:8px;">Skor kamu:</div>
     <div id="gameOverScore">0</div>
     <div id="prizeWon" class="no-prize">Belum mencapai skor hadiah 😢<br><small>Skor 500+ untuk hadiah pertama!</small></div>
     <div id="trainingBanner" style="display:none;">
@@ -1775,18 +2011,20 @@ function activatePU(pu){
 function updatePUhud(dt){
   for(let i=0;i<MAX_SLOTS;i++){
     const s=skillSlots[i];
-    if(!s)continue;
+    const timerEl=document.getElementById('slotTimer'+i);
+    if(!s){if(timerEl)timerEl.classList.remove('show');continue;}
     if(s.id==='sandal'){
       // Sandal: berbasis hitungan
       activePU.sandal=sandalCount>0?1:0;
       if(sandalCount<=0){setSlotEmpty(i);}
-      else{drawSlotArc(i,sandalCount/3,3,s.color);}
+      else{drawSlotArc(i,sandalCount/3,3,s.color);if(timerEl){timerEl.textContent=sandalCount;timerEl.classList.add('show');}}
     } else {
       if(activePU[s.id]>0){
         activePU[s.id]=Math.max(0,activePU[s.id]-dt);
         s.remaining=activePU[s.id];
         const frac=s.remaining/s.maxDur;
         drawSlotArc(i,frac,s.maxDur,s.color);
+        if(timerEl){timerEl.textContent=Math.ceil(s.remaining);timerEl.classList.add('show');}
       } else {
         activePU[s.id]=0;
         setSlotEmpty(i);
@@ -1836,7 +2074,7 @@ function checkSandalCollision(ob){
 // ═══════════════════════════════════════════════════════════
 function flash(color,alpha){flashColor=color;flashAlpha=alpha;}
 function updateFlash(){if(flashAlpha<=0)return;const el=document.getElementById('flashOverlay');el.style.background=flashColor;el.style.opacity=flashAlpha;flashAlpha=Math.max(0,flashAlpha-.04);if(flashAlpha<=0)el.style.opacity=0;}
-function showMilestone(text,color){const el=document.getElementById('milestoneBanner');el.textContent=text;el.style.color=color;el.style.textShadow='0 0 30px '+color;el.classList.add('show');milestoneTimer=130;}
+function showMilestone(text,color){const el=document.getElementById('milestoneBanner');el.textContent=text;el.style.color=color;el.style.textShadow='0 3px 0 rgba(0,0,0,0.5)';el.classList.add('show');milestoneTimer=130;}
 function updateMilestone(){if(milestoneTimer>0){milestoneTimer--;if(milestoneTimer<=0)document.getElementById('milestoneBanner').classList.remove('show');}}
 
 // ═══════════════════════════════════════════════════════════
@@ -1871,6 +2109,8 @@ function showGameOver(){
   cancelAnimationFrame(raf);
   document.body.classList.remove('in-game'); // matikan area tap-jump supaya tombol Game Over bisa dipencet
   const s=Math.floor(score);document.getElementById('gameOverScore').textContent=s;
+  const gameOverScoreLabel=document.getElementById('gameOverScoreLabel');
+  const gameOverScoreEl=document.getElementById('gameOverScore');
   const prEl=document.getElementById('prizeWon');
   const clm=document.getElementById('claimSection');
   const nameForm=document.getElementById('nameForm');
@@ -1878,14 +2118,18 @@ function showGameOver(){
   const trainingBanner=document.getElementById('trainingBanner');
 
   if(isTraining){
-    // Mode Latihan — sembunyikan semua elemen hadiah & submit
+    // Mode Latihan — skor & hadiah TIDAK ditampilkan sama sekali, supaya jelas tidak dihitung
+    gameOverScoreLabel.style.display='none';
+    gameOverScoreEl.style.display='none';
     prEl.style.display='none';
     clm.style.display='none';
     nameForm.style.display='none';
     submitMsg.textContent='';
     trainingBanner.style.display='block';
   } else {
-    // Mode Normal — tampilkan hadiah & form submit seperti biasa
+    // Mode Normal — tampilkan skor, hadiah & form submit seperti biasa
+    gameOverScoreLabel.style.display='';
+    gameOverScoreEl.style.display='';
     prEl.style.display='';
     nameForm.style.display='';
     trainingBanner.style.display='none';
@@ -2272,7 +2516,83 @@ renderCostumeGrid();
 applyLang();
 applyGfx();
 
-document.getElementById('startBtn').addEventListener('click',()=>{ isTraining=false; startGame(); });
+// ── ALUR BARU: Bermain → Pilih Mode (Code / Latihan) ──
+document.getElementById('startBtn').addEventListener('click',()=>{
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('playChoiceScreen').classList.remove('hidden');
+});
+document.getElementById('playChoiceBackBtn').addEventListener('click',()=>{
+  document.getElementById('playChoiceScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+});
+
+// Latihan Bermain → langsung main, skor tidak dihitung
+document.getElementById('playPracticeBtn').addEventListener('click',()=>{
+  document.getElementById('playChoiceScreen').classList.add('hidden');
+  isTraining=true;
+  startGame();
+});
+
+// Bermain Dengan Code → tampilkan input 6 digit (format XXX-XXX)
+document.getElementById('playWithCodeBtn').addEventListener('click',()=>{
+  document.getElementById('playChoiceScreen').classList.add('hidden');
+  document.getElementById('codeEntryScreen').classList.remove('hidden');
+  const inp=document.getElementById('codeInput');
+  inp.value='';
+  document.getElementById('codeErrorMsg').style.display='none';
+  const btn=document.getElementById('codeVerifyBtn');
+  btn.textContent='✅ Verifikasi Code';
+  btn.dataset.verified='0';
+  setTimeout(()=>inp.focus(),200);
+});
+document.getElementById('codeBackBtn').addEventListener('click',()=>{
+  document.getElementById('codeEntryScreen').classList.add('hidden');
+  document.getElementById('playChoiceScreen').classList.remove('hidden');
+});
+
+// "Code tidak berfungsi/salah? Bantuan" → buka halaman Bantuan
+document.getElementById('codeHelpBtn').addEventListener('click',()=>{
+  document.getElementById('codeEntryScreen').classList.add('hidden');
+  document.getElementById('helpScreen').classList.remove('hidden');
+});
+
+// Tutorial "Cara Mendapatkan Code" (beli 1pcs Crocs di source.crocs)
+document.getElementById('howToGetCodeBtn').addEventListener('click',()=>{
+  document.getElementById('howToGetCodeOverlay').classList.remove('hidden');
+});
+document.getElementById('howToGetCodeCloseBtn').addEventListener('click',()=>{
+  document.getElementById('howToGetCodeOverlay').classList.add('hidden');
+});
+
+// Auto-format input jadi XXX-XXX (huruf/angka, maksimal 6 karakter + 1 strip)
+document.getElementById('codeInput').addEventListener('input',(e)=>{
+  let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+  if(v.length>3) v = v.slice(0,3)+'-'+v.slice(3);
+  e.target.value = v;
+  document.getElementById('codeErrorMsg').style.display='none';
+  // Kalau user edit lagi setelah verifikasi, reset tombol ke Verifikasi Code
+  const btn=document.getElementById('codeVerifyBtn');
+  if(btn.dataset.verified==='1'){ btn.textContent='✅ Verifikasi Code'; btn.dataset.verified='0'; }
+});
+
+document.getElementById('codeVerifyBtn').addEventListener('click',()=>{
+  const btn=document.getElementById('codeVerifyBtn');
+  if(btn.dataset.verified==='1'){
+    // Sudah terverifikasi → langsung mulai game beneran (skor dihitung, hadiah berlaku)
+    document.getElementById('codeEntryScreen').classList.add('hidden');
+    isTraining=false;
+    startGame();
+    return;
+  }
+  const raw = document.getElementById('codeInput').value.replace(/-/g,'');
+  if(raw.length!==6){
+    document.getElementById('codeErrorMsg').style.display='block';
+    return;
+  }
+  document.getElementById('codeErrorMsg').style.display='none';
+  btn.textContent='▶ Langsung Bermain!';
+  btn.dataset.verified='1';
+});
 
 // ── PILIH DEVICE + TUTORIAL ──
 // Saat load pertama, sembunyikan startScreen dan tampilkan deviceScreen dulu.
