@@ -1955,6 +1955,8 @@ function setSlotEmpty(i){
   if(el){el.className='skill-slot empty';}
   const em=document.getElementById('slotEmoji'+i);
   if(em){em.textContent='·';}
+  const tm=document.getElementById('slotTimer'+i);
+  if(tm){tm.classList.remove('show');}
   drawSlotArc(i,0,0,'#444');
 }
 
