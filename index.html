@@ -275,6 +275,72 @@
   body.perf-lite .ready-badge,
   body.perf-lite .rotate-icon { animation: none; }
 
+  /* ── ADMIN PANEL ── */
+  .admin-input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .admin-input:focus { border-color: #FF6B35; }
+  .admin-stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    width: 100%; max-width: 380px; margin-bottom: 18px;
+  }
+  .admin-stat-card {
+    background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  .admin-stat-value { font-family: 'Creepster', cursive; font-size: 28px; color: #FFD166; line-height: 1; }
+  .admin-stat-label { font-size: 10px; color: #7a6a8a; margin-top: 4px; letter-spacing: 0.3px; }
+  .admin-section {
+    width: 100%; max-width: 380px;
+    background: linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .admin-section-title { font-size: 12px; font-weight: 900; color: #d8c5e8; margin-bottom: 10px; letter-spacing: 0.3px; }
+  .admin-generate-row { display: flex; gap: 8px; }
+  .admin-generated-list {
+    margin-top: 10px; max-height: 140px; overflow-y: auto;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .admin-generated-list .code-chip {
+    background: rgba(57,255,20,0.12); border: 1px solid rgba(57,255,20,0.35);
+    color: #39FF14; font-size: 11px; font-weight: 800;
+    padding: 4px 9px; border-radius: 8px; letter-spacing: 0.5px;
+  }
+  .admin-filter-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .admin-filter-tab {
+    background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.12);
+    color: #888; font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800;
+    padding: 6px 12px; border-radius: 20px; cursor: pointer;
+  }
+  .admin-filter-tab.active { background: rgba(255,107,53,0.18); border-color: #FF6B35; color: #FFD166; }
+  .admin-code-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .admin-code-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 8px 12px; font-size: 12.5px;
+  }
+  .admin-code-row .code-mono { font-family: monospace; font-weight: 700; letter-spacing: 1px; color: #fff; }
+  .admin-code-badge { font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.3px; }
+  .admin-code-badge.unused { background: rgba(57,255,20,0.15); color: #39FF14; border: 1px solid rgba(57,255,20,0.35); }
+  .admin-code-badge.used { background: rgba(255,255,255,0.08); color: #888; border: 1px solid rgba(255,255,255,0.15); }
+
   /* ── COSTUME PICKER (halaman utama) ── */
   .costume-picker-layout {
     display: flex; align-items: center; justify-content: center;
@@ -341,6 +407,20 @@
 
   /* ── NEW SIMPLIFIED MENU ── */
   .menu-btn-stack { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; margin-top: 6px; }
+  #accountBtn {
+    position: absolute; top: 14px; right: 14px;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+    z-index: 21;
+  }
+  #accountBtn:hover { border-color: #FF6B35; color: #FF6B35; }
   .menu-btn { width: 100%; justify-content: center; }
 
   /* ── HELP SCREEN ── */
@@ -964,6 +1044,61 @@
       <button class="btn btn-ghost menu-btn" id="helpBtn">💬 <span data-i18n="help">Bantuan</span></button>
     </div>
     <button class="btn btn-ghost" id="lbBtnStart" style="margin-top:18px;">🏅 <span data-i18n="leaderboard">Leaderboard</span></button>
+    <button id="accountBtn" title="Akun Admin">🔐</button>
+  </div>
+
+  <!-- LOGIN ADMIN -->
+  <div class="screen hidden" id="accountLoginScreen">
+    <span class="code-hero-icon">🔐</span>
+    <div class="screen-title" style="font-size:clamp(24px,5.5vw,36px);">Login Admin</div>
+    <div class="screen-sub">Khusus administrator game</div>
+    <div class="code-card" style="text-align:left;">
+      <label style="font-size:11px;color:#7a6a8a;font-weight:800;letter-spacing:0.5px;">USERNAME</label>
+      <input type="text" id="adminUsername" class="admin-input" placeholder="Username" autocomplete="off" style="margin-top:6px;margin-bottom:12px;">
+      <label style="font-size:11px;color:#7a6a8a;font-weight:800;letter-spacing:0.5px;">PASSWORD</label>
+      <input type="password" id="adminPassword" class="admin-input" placeholder="Password" autocomplete="off" style="margin-top:6px;">
+      <div id="adminLoginError" class="code-error-msg" style="display:none;"></div>
+    </div>
+    <button class="btn btn-primary" id="adminLoginBtn" style="margin-top:16px;min-width:220px;">🔓 Masuk</button>
+    <button class="btn btn-ghost" id="adminLoginBackBtn" style="margin-top:10px;">← Kembali</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="screen hidden" id="adminPanelScreen" style="justify-content:flex-start;padding-top:28px;">
+    <div class="screen-title" style="font-size:clamp(22px,5vw,32px);margin-bottom:4px;">🛠️ Admin Panel</div>
+    <div class="screen-sub" style="margin-bottom:14px;">Kelola code & pantau statistik game</div>
+
+    <!-- Statistik -->
+    <div class="admin-stat-grid" id="adminStatGrid">
+      <div class="admin-stat-card"><div class="admin-stat-value" id="statTotalCodes">–</div><div class="admin-stat-label">Total Code</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-value" id="statUsedCodes">–</div><div class="admin-stat-label">Terpakai</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-value" id="statUnusedCodes">–</div><div class="admin-stat-label">Belum Dipakai</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-value" id="statTotalPlayers">–</div><div class="admin-stat-label">Total Main</div></div>
+    </div>
+
+    <!-- Buat Code Baru -->
+    <div class="admin-section">
+      <div class="admin-section-title">➕ Buat Code Baru</div>
+      <div class="admin-generate-row">
+        <input type="number" id="adminGenCount" class="admin-input" value="10" min="1" max="200" style="max-width:90px;text-align:center;">
+        <button class="btn btn-primary" id="adminGenerateBtn" style="padding:10px 18px;">🎲 Generate</button>
+      </div>
+      <div id="adminGeneratedList" class="admin-generated-list"></div>
+    </div>
+
+    <!-- Daftar Code -->
+    <div class="admin-section">
+      <div class="admin-section-title">📋 Daftar Code</div>
+      <div class="admin-filter-tabs">
+        <button class="admin-filter-tab active" data-filter="all">Semua</button>
+        <button class="admin-filter-tab" data-filter="unused">Aktif</button>
+        <button class="admin-filter-tab" data-filter="used">Terpakai</button>
+      </div>
+      <div id="adminCodeList" class="admin-code-list"><div class="lb-empty">Memuat...</div></div>
+    </div>
+
+    <button class="btn btn-ghost" id="adminRefreshBtn" style="margin-top:14px;">🔄 Refresh Data</button>
+    <button class="btn btn-ghost" id="adminLogoutBtn" style="margin-top:10px;">🚪 Logout</button>
   </div>
 
   <!-- PILIH MODE: Bermain dengan Code / Latihan -->
@@ -1261,7 +1396,7 @@
 // ═══════════════════════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════════════════════
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxWGR5H0S7ZNBiAiWUSREDit7UGtX1Yd3wnon88oYKnLboKBnYj-QgxImCFNx4A2Dpx4g/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz-YsXnI14prAGwab19r5PuXxjWx5InfeefYebshfhfdV1tAiU2bMrHH2AI1cJMxuBE/exec';
 const WA_NUMBER='6281234567890';
 const PRIZES=[
   {score:7900,label:'Crocs Classic Clog 1pcs 🏆',tier:'grand'},
@@ -1327,6 +1462,7 @@ const W=1280, H=600;
 canvas.width=W; canvas.height=H;
 
 const stage = document.getElementById('stage');
+const gameWrap = document.getElementById('gameWrap');
 stage.style.width = W + 'px';
 stage.style.height = H + 'px';
 function getViewportSize(){
@@ -1338,6 +1474,16 @@ function getViewportSize(){
 }
 function resizeCanvas(){
   const vp = getViewportSize();
+
+  // PENTING: samakan ukuran #gameWrap PERSIS dengan visualViewport (lewat JS),
+  // jangan andalkan CSS 100vh/100dvh saja — di HP (terutama landscape), CSS vh/dvh
+  // sering TIDAK sinkron dengan visualViewport (gara-gara address bar browser yang
+  // collapse/muncul), sehingga stage yang di-scale jadi lebih besar dari kotak yang
+  // kelihatan dan bagian tepinya kepotong (overflow:hidden). Set eksplisit di sini
+  // supaya kotak pembungkus & perhitungan skala selalu pakai angka yang sama persis.
+  gameWrap.style.width  = vp.w + 'px';
+  gameWrap.style.height = vp.h + 'px';
+
   const scaleX = vp.w / W;
   const scaleY = vp.h / H;
   const scale  = Math.min(scaleX, scaleY);
@@ -1351,9 +1497,10 @@ function resizeCanvas(){
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
-window.addEventListener('orientationchange', ()=>setTimeout(resizeCanvas,150));
+window.addEventListener('orientationchange', ()=>{setTimeout(resizeCanvas,150);setTimeout(resizeCanvas,500);});
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', resizeCanvas);
+  window.visualViewport.addEventListener('scroll', resizeCanvas);
 }
 const GROUND_Y=H-110, PLAYER_SIZE=Math.round(H*0.11);
 
@@ -1378,6 +1525,17 @@ function triggerRush(){
   _tone(880,'square',.08,.3);_tone(1200,'sine',.06,.4);
 }
 let isTraining=false;
+let currentPlayCode=''; // ← code yang lagi dipakai main (diisi saat redeem berhasil, dipakai saat submit skor)
+
+// ═══════════════════════════════════════════════════════════
+//  KONFIGURASI ADMIN — ganti username/password sesuai keinginanmu
+//  ADMIN_TOKEN harus SAMA PERSIS dengan ADMIN_TOKEN di Code.gs (backend),
+//  supaya endpoint admin_* di backend tidak bisa dipanggil orang lain.
+// ═══════════════════════════════════════════════════════════
+const ADMIN_USERNAME='admin';
+const ADMIN_PASSWORD='crocs2026';
+const ADMIN_TOKEN='ganti-token-rahasia-ini'; // ← WAJIB disamakan dengan ADMIN_TOKEN di Code.gs
+let isAdminLoggedIn=false;
 let lives=3,hitCD=0;
 const MAX_LIVES=3,BONUS_LIFE_EVERY=1000;
 let nextBonusLife=BONUS_LIFE_EVERY;
@@ -1423,6 +1581,7 @@ function playerRect(){const pw=PLAYER_SIZE*.7,ph=PLAYER_SIZE*.85;return{x:player
 // ═══════════════════════════════════════════════════════════
 //  DRAW BACKGROUND
 // ═══════════════════════════════════════════════════════════
+let _groundGradientCache=null; // gradient tanah statis, dibuat sekali saja (hemat createLinearGradient tiap frame)
 function drawBG(){
   let skyTop,skyMid,skyBot;
   if(score<1500){
@@ -1460,7 +1619,7 @@ function drawBG(){
     ctx.restore();
   }
   ctx.save();
-  if(gfxQuality!=='superlow'){ ctx.shadowColor='#FFD166'; ctx.shadowBlur=40; }
+  if(gfxQuality==='high'){ ctx.shadowColor='#FFD166'; ctx.shadowBlur=40; }
   ctx.fillStyle='#FFD166';
   const moonR=Math.round(H*0.115), moonX=W-Math.round(W*0.09), moonY=Math.round(H*0.17);
   ctx.beginPath();ctx.arc(moonX,moonY,moonR,0,Math.PI*2);ctx.fill();
@@ -1480,8 +1639,11 @@ function drawBG(){
   if(gfxQuality==='high'){
     bgBats.forEach(b=>{ctx.save();if(b.flip)ctx.scale(-1,1);const bx=b.flip?-b.x:b.x;const ec=getEC('🦇',16);ctx.drawImage(ec,bx-ec.width/2,b.y+Math.sin(frameCount*.05+b.x)*6-ec.height/2);ctx.restore();b.x-=b.spd;if(b.x<-20)b.x=W+20;});
   }
-  const gg=ctx.createLinearGradient(0,GROUND_Y,0,H);gg.addColorStop(0,'#2d1a3e');gg.addColorStop(1,'#1a0a2a');
-  ctx.fillStyle=gg;ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
+  if(!_groundGradientCache){
+    _groundGradientCache=ctx.createLinearGradient(0,GROUND_Y,0,H);
+    _groundGradientCache.addColorStop(0,'#2d1a3e');_groundGradientCache.addColorStop(1,'#1a0a2a');
+  }
+  ctx.fillStyle=_groundGradientCache;ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
   ctx.fillStyle='#3d2055';ctx.beginPath();ctx.moveTo(0,GROUND_Y);
   // superlow: ground lurus tanpa animasi sin() setiap x
   if(gfxQuality==='superlow'){
@@ -2153,7 +2315,7 @@ document.getElementById('submitBtn').addEventListener('click',async()=>{
   if(!nama){document.getElementById('submitMsg').textContent='⚠️ Masukkan nama kamu dulu!';return;}
   const btn=document.getElementById('submitBtn');btn.textContent='⏳...';btn.disabled=true;
   const prize=getPrize(s);
-  const res=await apiCall({action:'lb_add',nama,hadiah:prize?prize.label:'Belum ada hadiah',kode:'HALLOWEEN',waktu:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),tanggal:new Date().toLocaleDateString('id-ID'),wasBoost:'false',wasRedBoost:'false'});
+  const res=await apiCall({action:'lb_add',nama,hadiah:prize?prize.label:'Belum ada hadiah',kode:currentPlayCode||'-',waktu:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),tanggal:new Date().toLocaleDateString('id-ID'),wasBoost:'false',wasRedBoost:'false'});
   btn.disabled=false;
   if(res&&res.success){document.getElementById('submitMsg').textContent='✓ Skor berhasil dikirim!';btn.textContent='✓ Terkirim';}
   else{document.getElementById('submitMsg').textContent='❌ Gagal kirim, coba lagi.';btn.textContent='📤 Kirim';}
@@ -2532,6 +2694,7 @@ document.getElementById('playChoiceBackBtn').addEventListener('click',()=>{
 document.getElementById('playPracticeBtn').addEventListener('click',()=>{
   document.getElementById('playChoiceScreen').classList.add('hidden');
   isTraining=true;
+  currentPlayCode='';
   startGame();
 });
 
@@ -2577,23 +2740,152 @@ document.getElementById('codeInput').addEventListener('input',(e)=>{
   if(btn.dataset.verified==='1'){ btn.textContent='✅ Verifikasi Code'; btn.dataset.verified='0'; }
 });
 
-document.getElementById('codeVerifyBtn').addEventListener('click',()=>{
+document.getElementById('codeVerifyBtn').addEventListener('click',async()=>{
   const btn=document.getElementById('codeVerifyBtn');
+  const errEl=document.getElementById('codeErrorMsg');
+
   if(btn.dataset.verified==='1'){
-    // Sudah terverifikasi → langsung mulai game beneran (skor dihitung, hadiah berlaku)
+    // Sudah terverifikasi → redeem code (tandai "used" di spreadsheet) lalu mulai game beneran
+    btn.disabled=true;btn.textContent='⏳ Memulai...';
+    const raw=document.getElementById('codeInput').value.replace(/-/g,'');
+    const res=await apiCall({action:'code_redeem',code:raw});
+    btn.disabled=false;
+    if(!res||!res.success){
+      errEl.textContent='❌ '+(res&&res.message?res.message:'Gagal memulai, coba lagi.');
+      errEl.style.display='block';
+      btn.textContent='▶ Langsung Bermain!';
+      return;
+    }
+    currentPlayCode=raw; // simpan buat dipakai saat submit skor nanti
     document.getElementById('codeEntryScreen').classList.add('hidden');
     isTraining=false;
     startGame();
     return;
   }
+
   const raw = document.getElementById('codeInput').value.replace(/-/g,'');
   if(raw.length!==6){
-    document.getElementById('codeErrorMsg').style.display='block';
+    errEl.textContent='⚠️ Code harus 6 digit ya!';
+    errEl.style.display='block';
     return;
   }
-  document.getElementById('codeErrorMsg').style.display='none';
+  errEl.style.display='none';
+  btn.disabled=true;btn.textContent='⏳ Memeriksa...';
+  const res=await apiCall({action:'code_verify',code:raw});
+  btn.disabled=false;
+  if(!res||!res.success){
+    errEl.textContent='❌ '+(res&&res.message?res.message:'Code tidak ditemukan / sudah dipakai.');
+    errEl.style.display='block';
+    btn.textContent='✅ Verifikasi Code';
+    btn.dataset.verified='0';
+    return;
+  }
   btn.textContent='▶ Langsung Bermain!';
   btn.dataset.verified='1';
+});
+
+// ═══════════════════════════════════════════════════════════
+//  ADMIN: LOGIN & PANEL
+// ═══════════════════════════════════════════════════════════
+document.getElementById('accountBtn').addEventListener('click',()=>{
+  document.getElementById('startScreen').classList.add('hidden');
+  if(isAdminLoggedIn){
+    document.getElementById('adminPanelScreen').classList.remove('hidden');
+    loadAdminData();
+  } else {
+    document.getElementById('accountLoginScreen').classList.remove('hidden');
+    document.getElementById('adminUsername').value='';
+    document.getElementById('adminPassword').value='';
+    document.getElementById('adminLoginError').style.display='none';
+  }
+});
+document.getElementById('adminLoginBackBtn').addEventListener('click',()=>{
+  document.getElementById('accountLoginScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+});
+document.getElementById('adminLoginBtn').addEventListener('click',()=>{
+  const u=document.getElementById('adminUsername').value.trim();
+  const p=document.getElementById('adminPassword').value;
+  const errEl=document.getElementById('adminLoginError');
+  if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+    isAdminLoggedIn=true;
+    document.getElementById('accountLoginScreen').classList.add('hidden');
+    document.getElementById('adminPanelScreen').classList.remove('hidden');
+    loadAdminData();
+  } else {
+    errEl.textContent='❌ Username atau password salah.';
+    errEl.style.display='block';
+  }
+});
+// Enter key buat login
+['adminUsername','adminPassword'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('adminLoginBtn').click(); });
+});
+document.getElementById('adminLogoutBtn').addEventListener('click',()=>{
+  isAdminLoggedIn=false;
+  document.getElementById('adminPanelScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+});
+document.getElementById('adminRefreshBtn').addEventListener('click',loadAdminData);
+
+let allAdminCodes=[]; // cache hasil admin_list_codes buat filter tab tanpa fetch ulang
+
+async function loadAdminData(){
+  document.getElementById('adminCodeList').innerHTML='<div class="lb-empty">Memuat...</div>';
+  ['statTotalCodes','statUsedCodes','statUnusedCodes','statTotalPlayers'].forEach(id=>{document.getElementById(id).textContent='–';});
+
+  const statsRes=await apiCall({action:'admin_stats',token:ADMIN_TOKEN});
+  if(statsRes&&statsRes.success){
+    document.getElementById('statTotalCodes').textContent=statsRes.totalCodes;
+    document.getElementById('statUsedCodes').textContent=statsRes.usedCodes;
+    document.getElementById('statUnusedCodes').textContent=statsRes.unusedCodes;
+    document.getElementById('statTotalPlayers').textContent=statsRes.totalPlayers;
+  }
+
+  const listRes=await apiCall({action:'admin_list_codes',token:ADMIN_TOKEN});
+  if(listRes&&listRes.success){
+    allAdminCodes=listRes.codes||[];
+    renderAdminCodeList('all');
+  } else {
+    document.getElementById('adminCodeList').innerHTML='<div class="lb-empty">Gagal memuat data 😔</div>';
+  }
+}
+
+function renderAdminCodeList(filter){
+  const listEl=document.getElementById('adminCodeList');
+  let rows=allAdminCodes;
+  if(filter==='unused') rows=rows.filter(c=>c.status==='unused');
+  if(filter==='used') rows=rows.filter(c=>c.status==='used');
+  if(!rows.length){ listEl.innerHTML='<div class="lb-empty">Tidak ada data 🎃</div>'; return; }
+  listEl.innerHTML=rows.map(c=>`
+    <div class="admin-code-row">
+      <span class="code-mono">${c.code}</span>
+      <span class="admin-code-badge ${c.status}">${c.status==='used'?'TERPAKAI':'AKTIF'}</span>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.admin-filter-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.admin-filter-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    renderAdminCodeList(tab.dataset.filter);
+  });
+});
+
+document.getElementById('adminGenerateBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('adminGenerateBtn');
+  const count=Math.max(1,Math.min(200,parseInt(document.getElementById('adminGenCount').value,10)||10));
+  btn.disabled=true;btn.textContent='⏳...';
+  const res=await apiCall({action:'admin_generate_codes',token:ADMIN_TOKEN,count});
+  btn.disabled=false;btn.textContent='🎲 Generate';
+  const genList=document.getElementById('adminGeneratedList');
+  if(res&&res.success&&res.codes){
+    genList.innerHTML=res.codes.map(c=>`<span class="code-chip">${c}</span>`).join('');
+    loadAdminData(); // refresh statistik & daftar code
+  } else {
+    genList.innerHTML='<span style="color:#ff8080;font-size:12px;">❌ '+(res&&res.message?res.message:'Gagal generate code.')+'</span>';
+  }
 });
 
 // ── PILIH DEVICE + TUTORIAL ──
