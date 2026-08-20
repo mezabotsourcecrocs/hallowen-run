@@ -24,6 +24,10 @@
   .tier-badge.grand.unlocked { border-color: #FFD166; color: #FFD166; background: linear-gradient(180deg,rgba(255,209,102,0.16),rgba(255,209,102,0.03)); animation: grandPulse 1s ease-in-out infinite; }
   @keyframes grandPulse { 0%,100% { box-shadow: 0 0 6px #FFD166; } 50% { box-shadow: 0 0 20px #FFD166; } }
   .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; padding: 20px; text-align: center; background: rgba(13,0,16,0.92); backdrop-filter: blur(4px); overflow-y: auto; z-index: 20; }
+  /* Transisi halus setiap kali layar muncul — cukup CSS saja, otomatis jalan
+     tanpa perlu ubah satupun kode JS yang sudah ada (semua toggle .hidden). */
+  @keyframes screenFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .screen:not(.hidden) { animation: screenFadeIn 0.22s ease; }
   canvas { touch-action: none; }
   /* Start screen: lebih transparan supaya canvas Halloween yang animasi di belakang terlihat sebagai "live preview" */
   #startScreen { background: rgba(13,0,16,0.62); backdrop-filter: blur(2px); }
@@ -60,6 +64,7 @@
     padding: 16px;
   }
   #htpOverlay.hidden { display: none; }
+  #htpOverlay:not(.hidden), #howToGetCodeOverlay:not(.hidden), #deviceTutorialOverlay:not(.hidden) { animation: screenFadeIn 0.2s ease; }
   #howToGetCodeOverlay {
     position: absolute; inset: 0;
     background: rgba(0,0,0,0.75);
@@ -69,6 +74,56 @@
     padding: 16px;
   }
   #howToGetCodeOverlay.hidden { display: none; }
+  #changelogOverlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30;
+    padding: 16px;
+  }
+  #changelogOverlay.hidden { display: none; }
+
+  .changelog-icon { color: #39FF14; background: rgba(57,255,20,0.12); border-color: rgba(57,255,20,0.3); }
+  .changelog-icon svg { display: block; }
+
+  .changelog-modal-header { margin-bottom: 14px; }
+  .changelog-modal-sub { font-size: 12px; color: #7a6a8a; }
+
+  .changelog-list { max-height: 55vh; overflow-y: auto; padding-right: 4px; }
+  .changelog-list::-webkit-scrollbar { width: 4px; }
+  .changelog-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  .changelog-entry {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .changelog-entry:last-child { border-bottom: none; padding-bottom: 4px; }
+  .changelog-entry-latest .changelog-version { background: rgba(255,107,53,0.16); border-color: rgba(255,107,53,0.4); color: #FF6B35; }
+
+  .changelog-version-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .changelog-version {
+    font-family: 'Nunito', sans-serif; font-size: 11.5px; font-weight: 900;
+    letter-spacing: 0.3px; color: #d8c5e8;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 6px; padding: 2px 8px;
+  }
+  .changelog-date { font-size: 11px; color: #5f5270; }
+
+  .changelog-items { margin: 0; padding: 0; list-style: none; }
+  .changelog-items li {
+    position: relative;
+    font-size: 12.5px; color: #b8a8c8; line-height: 1.5;
+    padding-left: 14px;
+    margin-bottom: 6px;
+  }
+  .changelog-items li:last-child { margin-bottom: 0; }
+  .changelog-items li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #5f5270;
+  }
+
   #htpCard {
     background: linear-gradient(160deg,#1A0A2E,#2d0a3e);
     border: 2px solid rgba(255,107,53,0.4);
@@ -251,7 +306,13 @@
     font-size: 12.5px;
     color: #ffc9c9;
   }
-  .warn-box .warn-icon { font-size: 18px; flex-shrink: 0; }
+  .warn-box .warn-icon {
+    flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,59,59,0.25); color: #ffc9c9;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; font-family: 'Nunito', sans-serif;
+    margin-top: 1px;
+  }
   .rotate-box {
     display: flex; align-items: center; gap: 12px;
     background: rgba(255,209,102,0.1);
@@ -260,7 +321,8 @@
     padding: 10px 12px;
     margin-top: 10px;
   }
-  .rotate-icon { font-size: 28px; animation: rotateHint 1.6s ease-in-out infinite; flex-shrink: 0; }
+  .rotate-icon { display: flex; flex-shrink: 0; animation: rotateHint 1.6s ease-in-out infinite; }
+  .rotate-icon svg { display: block; }
   @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
 
   /* ── MODE HEMAT PERFORMA (auto aktif di device low-end / grafis Low & Super Low) ── */
@@ -269,6 +331,7 @@
   body.perf-lite #startScreen,
   body.perf-lite #htpOverlay,
   body.perf-lite #howToGetCodeOverlay,
+  body.perf-lite #changelogOverlay,
   body.perf-lite #deviceTutorialOverlay { backdrop-filter: none; }
   body.perf-lite .tier-badge.grand.unlocked,
   body.perf-lite #prizeWon.grand-prize,
@@ -340,6 +403,24 @@
   .admin-code-badge { font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.3px; }
   .admin-code-badge.unused { background: rgba(57,255,20,0.15); color: #39FF14; border: 1px solid rgba(57,255,20,0.35); }
   .admin-code-badge.used { background: rgba(255,255,255,0.08); color: #888; border: 1px solid rgba(255,255,255,0.15); }
+  .admin-code-row-actions { display: flex; align-items: center; gap: 8px; }
+  .admin-delete-btn {
+    background: rgba(255,60,60,0.12); border: 1px solid rgba(255,60,60,0.35);
+    color: #ff8080; font-size: 12px; width: 24px; height: 24px;
+    border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; flex-shrink: 0;
+  }
+  .admin-delete-btn:hover { background: rgba(255,60,60,0.22); }
+  .admin-log-row {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 8px 12px; font-size: 11.5px; text-align: left;
+  }
+  .admin-log-row .log-time { color: #7a6a8a; font-size: 10px; }
+  .admin-log-row .log-action { font-weight: 800; }
+  .admin-log-row .log-action.login_success { color: #39FF14; }
+  .admin-log-row .log-action.login_failed, .admin-log-row .log-action.login_locked { color: #ff8080; }
+  .admin-log-row .log-action.generate_codes { color: #FFD166; }
+  .admin-log-row .log-action.delete_code { color: #ff8080; }
 
   /* ── COSTUME PICKER (halaman utama) ── */
   .costume-picker-layout {
@@ -556,6 +637,23 @@
   }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
   #lbList { width: 100%; max-width: 380px; max-height: 50vh; overflow-y: auto; margin: 16px 0; display: flex; flex-direction: column; gap: 6px; }
+  .event-status-banner {
+    width: 100%; max-width: 380px;
+    border-radius: 14px; padding: 12px 16px;
+    margin-bottom: 14px; font-size: 12.5px; text-align: center;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  .event-status-banner.ongoing {
+    background: linear-gradient(180deg,rgba(255,209,102,0.14),rgba(255,209,102,0.03));
+    border: 1.5px solid rgba(255,209,102,0.4); color: #ffe9b8;
+  }
+  .event-status-banner.over {
+    background: linear-gradient(180deg,rgba(57,255,20,0.14),rgba(57,255,20,0.03));
+    border: 1.5px solid rgba(57,255,20,0.4); color: #d8ffd0;
+  }
+  .event-status-banner strong { color: #FFD166; }
+  .event-status-banner.over strong { color: #39FF14; }
+
   .lb-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; background: linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 9px 14px; font-size: 13px; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
   .lb-row.top1 { border-color: rgba(255,209,102,0.4); }
   .lb-row.top2 { border-color: rgba(200,200,200,0.35); }
@@ -880,7 +978,7 @@
       <div class="gl-text" id="glText">Menyiapkan permainan...</div>
     </div>
     <div class="gl-tips-card">
-      <div class="gl-tips-header">💡 Tips Bermain</div>
+      <div class="gl-tips-header">Tips Bermain</div>
       <!-- Tip 1 -->
       <div class="gl-tip active" id="glTip0">
         <div class="gl-tip-icon">🦘</div>
@@ -915,7 +1013,7 @@
       <div class="gl-tip" id="glTip5">
         <div class="gl-tip-icon">🏆</div>
         <div class="gl-tip-title">Raih Grand Prize!</div>
-        <div class="gl-tip-desc">Capai skor 7900 untuk memenangkan Crocs Classic Clog 1pcs. Semangat! 🎃</div>
+        <div class="gl-tip-desc">Jadi pemegang skor TERTINGGI sepanjang masa untuk memenangkan Crocs Classic Clog 1pcs. Semangat! 🎃</div>
       </div>
       <div class="gl-dots" id="glDots">
         <div class="gl-dot active"></div>
@@ -929,20 +1027,20 @@
   </div>
   <!-- READY OVERLAY (pemain harus tap sekali untuk mulai lari) -->
   <div id="readyOverlay" class="hidden">
-    <div class="ready-badge">👆 Tap / Space untuk Mulai</div>
+    <div class="ready-badge">Tap / Space untuk Mulai</div>
   </div>
   <div id="hud" class="hud-hidden">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div id="scoreBox"><span class="score-icon">🎃</span><span id="scoreDisplay">0</span></div>
-      <div id="livesBox">❤️❤️❤️</div>
+      <div id="scoreBox"><span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FF6B35"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 7.1-1.01z"/></svg></span><span id="scoreDisplay">0</span></div>
+      <div id="livesBox"></div>
     </div>
     <div id="tiersBox">
-      <div class="tier-badge grand" id="tier6">👟 7900 — Crocs Classic</div>
-      <div class="tier-badge" id="tier5">💸 5600 — DANA Kaget 50RB</div>
-      <div class="tier-badge" id="tier4">🍀 3900 — DANA Kaget 30RB</div>
-      <div class="tier-badge" id="tier3">🎁 2500 — Diskon 30RB</div>
-      <div class="tier-badge" id="tier2">🎯 1000 — Diskon 25RB</div>
-      <div class="tier-badge" id="tier1">✨ 500 — Diskon 10RB</div>
+      <div class="tier-badge grand" id="tier6">Skor Tertinggi — Crocs Classic</div>
+      <div class="tier-badge" id="tier5">5600 — DANA Kaget 50RB</div>
+      <div class="tier-badge" id="tier4">3900 — DANA Kaget 30RB</div>
+      <div class="tier-badge" id="tier3">2500 — Diskon 30RB</div>
+      <div class="tier-badge" id="tier2">1000 — Diskon 25RB</div>
+      <div class="tier-badge" id="tier1">500 — Diskon 10RB</div>
     </div>
   </div>
   <div id="comboBox" class="hud-hidden"></div>
@@ -963,19 +1061,19 @@
   <div id="mobileJump"></div>
   <!-- PILIH DEVICE (muncul sekali setelah loading selesai) -->
   <div class="screen" id="deviceScreen">
-    <div class="start-emoji">🕹️</div>
+    <div class="start-emoji" style="font-size:clamp(36px,7vw,60px);">🎃</div>
     <div class="screen-title" style="font-size:clamp(24px,5.5vw,40px);">Pilih Device<br>Yang Kamu Gunakan</div>
-    <div class="screen-sub">Supaya kami bisa kasih tips main yang paling pas buat kamu 👇</div>
+    <div class="screen-sub">Supaya kami bisa kasih tips main yang paling pas buat kamu</div>
     <div class="device-btn-stack">
       <button class="device-choice-btn" id="deviceDesktopBtn">
-        <span class="device-choice-icon">🖥️</span>
+        <span class="device-choice-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
         <span>
           <div class="device-choice-title">Desktop / Laptop</div>
           <div class="device-choice-sub">Main pakai keyboard & mouse</div>
         </span>
       </button>
       <button class="device-choice-btn" id="deviceMobileBtn">
-        <span class="device-choice-icon">📱</span>
+        <span class="device-choice-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
         <span>
           <div class="device-choice-title">Handphone</div>
           <div class="device-choice-sub">Main pakai layar sentuh</div>
@@ -987,71 +1085,71 @@
   <!-- TUTORIAL SESUAI DEVICE -->
   <div id="deviceTutorialOverlay" class="hidden">
     <div id="htpCard">
-      <div class="htp-title" id="deviceTutorialTitle">📖 Tutorial</div>
+      <div class="htp-title" id="deviceTutorialTitle">Tutorial</div>
 
       <!-- Konten Desktop -->
       <div id="deviceTutorialDesktop" style="display:none;">
         <div class="htp-section">
-          <h4>🎮 Kontrol Desktop</h4>
+          <h4>Kontrol Desktop</h4>
           <div class="htp-row"><span class="htp-icon">⎵</span><span>Tekan <b>Space</b> atau <b>↑ Arrow</b> untuk lompat</span></div>
-          <div class="htp-row"><span class="htp-icon">🖱️</span><span><b>Klik</b> di area game juga bisa untuk lompat</span></div>
-          <div class="htp-row"><span class="htp-icon">🦘</span><span><b>Double jump</b> — tekan lagi saat masih di udara!</span></div>
+          <div class="htp-row"><span class="htp-icon">•</span><span><b>Klik</b> di area game juga bisa untuk lompat</span></div>
+          <div class="htp-row"><span class="htp-icon">•</span><span><b>Double jump</b> — tekan lagi saat masih di udara!</span></div>
         </div>
         <div class="warn-box">
-          <span class="warn-icon">⚠️</span>
+          <span class="warn-icon">!</span>
           <span>Pastikan jendela browser tidak dalam mode <b>zoom terlalu kecil/besar</b> agar tampilan game tetap pas.</span>
         </div>
         <div class="warn-box" style="background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
-          <span class="warn-icon">💡</span>
-          <span>Kalau laptop/PC kamu <b>spesifikasinya rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options ⚙️ supaya lebih ringan.</span>
+          <span class="warn-icon" style="background:rgba(255,209,102,0.25);color:#ffe9b8;">i</span>
+          <span>Kalau laptop/PC kamu <b>spesifikasinya rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options supaya lebih ringan.</span>
         </div>
       </div>
 
       <!-- Konten Handphone -->
       <div id="deviceTutorialMobile" style="display:none;">
         <div class="htp-section">
-          <h4>🎮 Kontrol Handphone</h4>
-          <div class="htp-row"><span class="htp-icon">👆</span><span><b>Tap</b> layar untuk lompat</span></div>
-          <div class="htp-row"><span class="htp-icon">🦘</span><span><b>Double jump</b> — tap lagi saat masih di udara!</span></div>
+          <h4>Kontrol Handphone</h4>
+          <div class="htp-row"><span class="htp-icon">•</span><span><b>Tap</b> layar untuk lompat</span></div>
+          <div class="htp-row"><span class="htp-icon">•</span><span><b>Double jump</b> — tap lagi saat masih di udara!</span></div>
         </div>
         <div class="rotate-box">
-          <span class="rotate-icon">📱</span>
+          <span class="rotate-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" color="#FFD166"><rect x="7" y="2" width="10" height="16" rx="2" transform="rotate(90 12 12)"/><path d="M3 8a9 9 0 0 1 14.3-6.3M21 16a9 9 0 0 1-14.3 6.3"/><path d="M17 1v4h-4M7 23v-4h4"/></svg></span>
           <span style="font-size:12.5px;color:#ffe9b8;"><b>Putar HP ke mode landscape (mendatar)</b> supaya game bisa tampil dan berfungsi sepenuhnya!</span>
         </div>
         <div class="warn-box" style="margin-top:10px;">
-          <span class="warn-icon">🚫</span>
+          <span class="warn-icon">!</span>
           <span><b>Jangan aktifkan mode "Tampilan Desktop"</b> di browser HP kamu (Chrome/Safari, dll) — ini bisa membuat game tidak berfungsi dengan baik.</span>
         </div>
         <div class="warn-box" style="margin-top:10px;background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
-          <span class="warn-icon">💡</span>
-          <span>Kalau HP kamu <b>low-end / spek rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options ⚙️ supaya lebih ringan.</span>
+          <span class="warn-icon" style="background:rgba(255,209,102,0.25);color:#ffe9b8;">i</span>
+          <span>Kalau HP kamu <b>low-end / spek rendah</b> dan game terasa berat/patah-patah, ubah grafis ke <b>Super Low</b> di menu Options supaya lebih ringan.</span>
         </div>
       </div>
 
-      <button class="btn btn-primary htp-close" id="deviceTutorialContinueBtn" style="margin-top:16px;">✅ Mengerti, Lanjut!</button>
+      <button class="btn btn-primary htp-close" id="deviceTutorialContinueBtn" style="margin-top:16px;">Mengerti, Lanjut</button>
     </div>
   </div>
 
   <div class="screen hidden" id="startScreen">
-    <div class="start-emoji">👟🎃</div>
+    <div class="start-emoji" style="font-size:clamp(36px,7vw,60px);">🎃</div>
     <div class="screen-title" data-i18n="title">CROCS HALLOWEEN RUN!</div>
     <div class="screen-sub" data-i18n="subtitle">Lari sejauh mungkin, hindari rintangan,<br>kumpulkan permen untuk Source Crocs!</div>
     <div class="menu-btn-stack">
-      <button class="btn btn-primary menu-btn" id="startBtn">▶ <span data-i18n="play">Play</span></button>
-      <button class="btn btn-ghost menu-btn" id="costumeBtn">👟 <span data-i18n="costume">Kostum</span></button>
-      <button class="btn btn-ghost menu-btn" id="optionsBtn">⚙ <span data-i18n="options">Options</span></button>
-      <button class="btn btn-ghost menu-btn" id="htpBtn">📖 <span data-i18n="howToPlay">Cara Bermain</span></button>
-      <button class="btn btn-ghost menu-btn" id="helpBtn">💬 <span data-i18n="help">Bantuan</span></button>
+      <button class="btn btn-primary menu-btn" id="startBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> <span data-i18n="play">Play</span></button>
+      <button class="btn btn-ghost menu-btn" id="costumeBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg> <span data-i18n="costume">Kostum</span></button>
+      <button class="btn btn-ghost menu-btn" id="optionsBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <span data-i18n="options">Options</span></button>
+      <button class="btn btn-ghost menu-btn" id="htpBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> <span data-i18n="howToPlay">Cara Bermain</span></button>
+      <button class="btn btn-ghost menu-btn" id="helpBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> <span data-i18n="help">Bantuan</span></button>
     </div>
-    <button class="btn btn-ghost" id="lbBtnStart" style="margin-top:18px;">🏅 <span data-i18n="leaderboard">Leaderboard</span></button>
-    <button id="accountBtn" title="Akun Admin">🔐</button>
+    <button class="btn btn-ghost" id="lbBtnStart" style="margin-top:18px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 4H4a2 2 0 0 0 0 4h1M17 4h3a2 2 0 0 1 0 4h-1"/></svg> <span data-i18n="leaderboard">Leaderboard</span></button>
+    <button id="accountBtn" title="Akun Admin"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
   </div>
 
   <!-- LOGIN ADMIN -->
   <div class="screen hidden" id="accountLoginScreen">
-    <span class="code-hero-icon">🔐</span>
-    <div class="screen-title" style="font-size:clamp(24px,5.5vw,36px);">Login Admin</div>
-    <div class="screen-sub">Khusus administrator game</div>
+    <span class="code-hero-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+    <div class="screen-title" style="font-size:clamp(24px,5.5vw,36px);">Account Login</div>
+    <div class="screen-sub">Welcome Back! Your Journey Is Begin Now.</div>
     <div class="code-card" style="text-align:left;">
       <label style="font-size:11px;color:#7a6a8a;font-weight:800;letter-spacing:0.5px;">USERNAME</label>
       <input type="text" id="adminUsername" class="admin-input" placeholder="Username" autocomplete="off" style="margin-top:6px;margin-bottom:12px;">
@@ -1059,14 +1157,14 @@
       <input type="password" id="adminPassword" class="admin-input" placeholder="Password" autocomplete="off" style="margin-top:6px;">
       <div id="adminLoginError" class="code-error-msg" style="display:none;"></div>
     </div>
-    <button class="btn btn-primary" id="adminLoginBtn" style="margin-top:16px;min-width:220px;">🔓 Masuk</button>
-    <button class="btn btn-ghost" id="adminLoginBackBtn" style="margin-top:10px;">← Kembali</button>
+    <button class="btn btn-primary" id="adminLoginBtn" style="margin-top:16px;min-width:220px;">Login Now</button>
+    <button class="btn btn-ghost" id="adminLoginBackBtn" style="margin-top:10px;">← Back</button>
   </div>
 
   <!-- ADMIN PANEL -->
   <div class="screen hidden" id="adminPanelScreen" style="justify-content:flex-start;padding-top:28px;">
-    <div class="screen-title" style="font-size:clamp(22px,5vw,32px);margin-bottom:4px;">🛠️ Admin Panel</div>
-    <div class="screen-sub" style="margin-bottom:14px;">Kelola code & pantau statistik game</div>
+    <div class="screen-title" style="font-size:clamp(22px,5vw,32px);margin-bottom:4px;">Admin Creator</div>
+    <div class="screen-sub" style="margin-bottom:14px;">Welcome Back! The Great Creator.</div>
 
     <!-- Statistik -->
     <div class="admin-stat-grid" id="adminStatGrid">
@@ -1078,17 +1176,17 @@
 
     <!-- Buat Code Baru -->
     <div class="admin-section">
-      <div class="admin-section-title">➕ Buat Code Baru</div>
+      <div class="admin-section-title">Buat Code Baru</div>
       <div class="admin-generate-row">
         <input type="number" id="adminGenCount" class="admin-input" value="10" min="1" max="200" style="max-width:90px;text-align:center;">
-        <button class="btn btn-primary" id="adminGenerateBtn" style="padding:10px 18px;">🎲 Generate</button>
+        <button class="btn btn-primary" id="adminGenerateBtn" style="padding:10px 18px;">Generate</button>
       </div>
       <div id="adminGeneratedList" class="admin-generated-list"></div>
     </div>
 
     <!-- Daftar Code -->
     <div class="admin-section">
-      <div class="admin-section-title">📋 Daftar Code</div>
+      <div class="admin-section-title">Daftar Code</div>
       <div class="admin-filter-tabs">
         <button class="admin-filter-tab active" data-filter="all">Semua</button>
         <button class="admin-filter-tab" data-filter="unused">Aktif</button>
@@ -1097,31 +1195,41 @@
       <div id="adminCodeList" class="admin-code-list"><div class="lb-empty">Memuat...</div></div>
     </div>
 
-    <button class="btn btn-ghost" id="adminRefreshBtn" style="margin-top:14px;">🔄 Refresh Data</button>
-    <button class="btn btn-ghost" id="adminLogoutBtn" style="margin-top:10px;">🚪 Logout</button>
+    <!-- Log Aktivitas (collapsible) -->
+    <div class="admin-section">
+      <button id="adminLogToggleBtn" class="admin-section-title" style="cursor:pointer;background:none;border:none;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;padding:0;color:#d8c5e8;">
+        <span>Log Aktivitas Admin</span><span id="adminLogToggleIcon">▼</span>
+      </button>
+      <div id="adminLogSection" style="display:none;margin-top:10px;">
+        <div id="adminLogList" class="admin-code-list"><div class="lb-empty">Memuat...</div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" id="adminRefreshBtn" style="margin-top:14px;">Refresh Data</button>
+    <button class="btn btn-ghost" id="adminLogoutBtn" style="margin-top:10px;">Logout</button>
   </div>
 
   <!-- PILIH MODE: Bermain dengan Code / Latihan -->
   <div class="screen hidden" id="playChoiceScreen">
-    <div class="start-emoji">🎮</div>
+    <div class="start-emoji" style="font-size:clamp(36px,7vw,60px);">🎃</div>
     <div class="screen-title" style="font-size:clamp(24px,5.5vw,40px);">Pilih Mode<br>Bermain</div>
     <div class="screen-sub">Mau langsung tanding pakai Code, atau latihan dulu?</div>
     <div class="mode-card-stack">
       <button class="mode-card mode-card-code" id="playWithCodeBtn">
-        <span class="mode-card-icon">🔑</span>
+        <span class="mode-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg></span>
         <span class="mode-card-body">
           <span class="mode-card-title">Bermain Dengan Code</span>
           <span class="mode-card-desc">Skor tercatat & dapat hadiah</span>
-          <span class="mode-card-tag">🏆 Dapat Hadiah!</span>
+          <span class="mode-card-tag">Dapat Hadiah</span>
         </span>
         <span class="mode-card-arrow">→</span>
       </button>
       <button class="mode-card mode-card-practice" id="playPracticeBtn">
-        <span class="mode-card-icon">🕹️</span>
+        <span class="mode-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z"/></svg></span>
         <span class="mode-card-body">
           <span class="mode-card-title">Latihan Bermain</span>
           <span class="mode-card-desc">Coba dulu, skor tidak dihitung</span>
-          <span class="mode-card-tag">✨ Gratis & Santai</span>
+          <span class="mode-card-tag">Gratis &amp; Santai</span>
         </span>
         <span class="mode-card-arrow">→</span>
       </button>
@@ -1131,20 +1239,20 @@
 
   <!-- INPUT CODE 6 DIGIT -->
   <div class="screen hidden" id="codeEntryScreen">
-    <span class="code-hero-icon">🔑</span>
+    <span class="code-hero-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg></span>
     <div class="screen-title" style="font-size:clamp(24px,5.5vw,38px);">Masukkan Code</div>
     <div class="screen-sub">Masukkan 6 digit code yang kamu punya</div>
 
     <div class="code-card">
       <input type="text" id="codeInput" class="code-input" placeholder="XXX-XXX" maxlength="7" autocomplete="off" autocapitalize="characters" inputmode="text">
       <div class="code-hint">Format: 3 karakter — 3 karakter</div>
-      <div id="codeErrorMsg" class="code-error-msg" style="display:none;">⚠️ Code harus 6 digit ya!</div>
+      <div id="codeErrorMsg" class="code-error-msg" style="display:none;">Code harus 6 digit ya.</div>
     </div>
 
-    <button class="btn btn-primary" id="codeVerifyBtn" style="margin-top:16px;min-width:220px;">✅ Verifikasi Code</button>
+    <button class="btn btn-primary" id="codeVerifyBtn" style="margin-top:16px;min-width:220px;">Verifikasi Code</button>
 
     <div class="code-links">
-      <button class="code-link-btn" id="codeHelpBtn">❓ Code tidak berfungsi/salah? <u>Bantuan</u></button>
+      <button class="code-link-btn" id="codeHelpBtn">Code tidak berfungsi/salah? <u>Bantuan</u></button>
       <button class="code-link-btn" id="codeBackBtn">← Kembali</button>
     </div>
   </div>
@@ -1152,35 +1260,35 @@
   <!-- TUTORIAL: CARA MENDAPATKAN CODE -->
   <div id="howToGetCodeOverlay" class="hidden">
     <div id="htpCard">
-      <div class="htp-title">🔑 Cara Mendapatkan Code</div>
+      <div class="htp-title">Cara Mendapatkan Code</div>
       <div class="htp-section">
-        <h4>🛍️ Langkahnya gampang!</h4>
-        <div class="htp-row"><span class="htp-icon">1️⃣</span><span>Buka website <b>source.crocs</b> dan pilih produk Crocs favoritmu</span></div>
-        <div class="htp-row"><span class="htp-icon">2️⃣</span><span>Beli minimal <b>1pcs Crocs</b> dari source.crocs</span></div>
-        <div class="htp-row"><span class="htp-icon">3️⃣</span><span>Setelah pembayaran berhasil, kamu akan menerima <b>6 digit Code</b> (format XXX-XXX)</span></div>
-        <div class="htp-row"><span class="htp-icon">4️⃣</span><span>Masukkan Code itu di menu <b>Bermain Dengan Code</b> untuk mulai main & rebut hadiahnya!</span></div>
+        <h4>Langkahnya gampang</h4>
+        <div class="htp-row"><span class="htp-icon">1</span><span>Buka website <b>source.crocs</b> dan pilih produk Crocs favoritmu</span></div>
+        <div class="htp-row"><span class="htp-icon">2</span><span>Beli minimal <b>1pcs Crocs</b> dari source.crocs</span></div>
+        <div class="htp-row"><span class="htp-icon">3</span><span>Setelah pembayaran berhasil, kamu akan menerima <b>6 digit Code</b> (format XXX-XXX)</span></div>
+        <div class="htp-row"><span class="htp-icon">4</span><span>Masukkan Code itu di menu <b>Bermain Dengan Code</b> untuk mulai main & rebut hadiahnya!</span></div>
       </div>
       <div class="warn-box" style="background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.35);color:#ffe9b8;">
-        <span class="warn-icon">💡</span>
+        <span class="warn-icon" style="background:rgba(255,209,102,0.25);color:#ffe9b8;">i</span>
         <span>Belum sempat checkout? Chat dulu lewat menu <b>Bantuan</b> ya, tim kami siap bantu!</span>
       </div>
-      <button class="btn btn-primary htp-close" id="howToGetCodeCloseBtn" style="margin-top:16px;">✅ Mengerti!</button>
+      <button class="btn btn-primary htp-close" id="howToGetCodeCloseBtn" style="margin-top:16px;">Mengerti</button>
     </div>
   </div>
 
   <!-- HELP SCREEN -->
   <div class="screen hidden" id="helpScreen">
-    <div class="screen-title" style="font-size:clamp(26px,5vw,42px);">💬 <span data-i18n="help">Bantuan</span></div>
+    <div class="screen-title" style="font-size:clamp(26px,5vw,42px);"><span data-i18n="help">Bantuan</span></div>
     <div class="screen-sub" data-i18n="helpSub" style="margin-bottom:20px;">Ada pertanyaan atau masalah? Hubungi kami!</div>
 
     <div class="help-card-list">
       <!-- Cara Mendapatkan Code -->
       <button class="help-card" id="howToGetCodeBtn" type="button" style="cursor:pointer;text-align:left;width:100%;font-family:inherit;">
-        <div class="help-card-icon" style="background:rgba(255,209,102,0.15);border-color:rgba(255,209,102,0.4);">🔑</div>
+        <div class="help-card-icon" style="background:rgba(255,209,102,0.15);border-color:rgba(255,209,102,0.4);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg></div>
         <div class="help-card-body">
           <div class="help-card-title">Cara Mendapatkan Code</div>
           <div class="help-card-value">Beli 1pcs Crocs = dapat Code main</div>
-          <div class="help-card-hint">Klik untuk lihat cara lengkapnya</div>
+          <div class="help-card-hint">Lihat cara lengkapnya</div>
         </div>
         <div class="help-card-arrow">→</div>
       </button>
@@ -1212,14 +1320,27 @@
       </a>
     </div>
 
-    <div class="help-hours" data-i18n="helpHours">⏰ Siap membantu Senin–Sabtu, 09.00–18.00 WIB</div>
+    <div class="help-hours" data-i18n="helpHours">Siap membantu Senin–Sabtu, 09.00–18.00 WIB</div>
+
+    <!-- Update Terbaru / Changelog -->
+    <button class="help-card" id="changelogBtn" type="button" style="cursor:pointer;text-align:left;width:100%;max-width:340px;font-family:inherit;">
+      <div class="help-card-icon changelog-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div class="help-card-body">
+        <div class="help-card-title">Update Terbaru</div>
+        <div class="help-card-value">v1.3.0 — Admin Panel &amp; Sistem Code</div>
+        <div class="help-card-hint">Lihat semua riwayat update</div>
+      </div>
+      <div class="help-card-arrow">→</div>
+    </button>
 
     <!-- Info Website -->
     <div class="about-box">
       <div class="about-box-title" data-i18n="aboutTitle">Tentang Game</div>
       <div class="about-row">
         <span class="about-label" data-i18n="aboutVersion">Versi</span>
-        <span class="about-value" id="aboutVersion">v1.0.0</span>
+        <span class="about-value" id="aboutVersion">v1.3.0</span>
       </div>
       <div class="about-row">
         <span class="about-label" data-i18n="aboutBuilt">Dibuat pada</span>
@@ -1238,9 +1359,73 @@
     <button class="btn btn-ghost" id="helpBackBtn" style="margin-top:16px;"><span data-i18n="back">← Kembali</span></button>
   </div>
 
+  <!-- MODAL: CHANGELOG -->
+  <div id="changelogOverlay" class="hidden">
+    <div id="htpCard">
+      <div class="changelog-modal-header">
+        <div class="htp-title" style="margin-bottom:2px;">Riwayat Update</div>
+        <div class="changelog-modal-sub">Semua perubahan &amp; perbaikan game</div>
+      </div>
+      <div class="changelog-list">
+
+        <div class="changelog-entry changelog-entry-latest">
+          <div class="changelog-version-row">
+            <span class="changelog-version">v1.3.0</span>
+            <span class="changelog-date">Agustus 2026</span>
+          </div>
+          <ul class="changelog-items">
+            <li>Admin Panel baru: statistik, generate code, kelola code langsung dari game</li>
+            <li>Sistem "Bermain Dengan Code" tersambung ke backend (Google Sheets)</li>
+            <li>Log aktivitas admin (login, generate code, hapus code)</li>
+            <li>Rate limiting login admin (anti brute-force)</li>
+            <li>Hapus code langsung dari Admin Panel</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-version-row">
+            <span class="changelog-version">v1.2.0</span>
+            <span class="changelog-date">Agustus 2026</span>
+          </div>
+          <ul class="changelog-items">
+            <li>Halaman Kostum terpisah dengan preview karakter &amp; pilihan warna</li>
+            <li>Upgrade desain di hampir semua layar (Game Over, HUD, Leaderboard, dll)</li>
+            <li>Perbaikan tampilan mobile: layar landscape tidak kepotong lagi</li>
+            <li>Optimasi performa buat device low-end (auto-deteksi &amp; mode grafis Super Low)</li>
+            <li>Transisi halus antar layar</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-version-row">
+            <span class="changelog-version">v1.1.0</span>
+            <span class="changelog-date">Juli 2026</span>
+          </div>
+          <ul class="changelog-items">
+            <li>Tutorial otomatis berdasarkan device (Desktop / Handphone)</li>
+            <li>Mode "Latihan Bermain" (skor tidak dihitung) terpisah dari mode Code</li>
+            <li>Sistem Leaderboard &amp; klaim hadiah</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-version-row">
+            <span class="changelog-version">v1.0.0</span>
+            <span class="changelog-date">Juni 2025</span>
+          </div>
+          <ul class="changelog-items">
+            <li>Rilis pertama Crocs Halloween Run</li>
+          </ul>
+        </div>
+
+      </div>
+      <button class="btn btn-primary htp-close" id="changelogCloseBtn" style="margin-top:16px;">Tutup</button>
+    </div>
+  </div>
+
   <!-- COSTUME SCREEN -->
   <div class="screen hidden" id="costumeScreen">
-    <div class="screen-title" style="font-size:clamp(26px,5vw,42px);">👟 <span data-i18n="costume">Kostum</span></div>
+    <div class="screen-title" style="font-size:clamp(26px,5vw,42px);"><span data-i18n="costume">Kostum</span></div>
     <div class="screen-sub" data-i18n="costumeSub" style="margin-bottom:14px;">Pilih warna Crocs favoritmu!</div>
 
     <div class="costume-picker-layout">
@@ -1257,16 +1442,16 @@
 
   <!-- OPTIONS SCREEN -->
   <div class="screen hidden" id="optionsScreen">
-    <div class="screen-title" style="font-size:clamp(28px,6vw,44px);">⚙ <span data-i18n="options">Options</span></div>
+    <div class="screen-title" style="font-size:clamp(28px,6vw,44px);"><span data-i18n="options">Options</span></div>
 
     <div class="opt-row" id="optMuteRow">
       <span data-i18n="gameSound">Suara Game</span>
-      <button class="btn btn-ghost opt-toggle" id="optMuteBtn">🔊 <span data-i18n="on">Hidup</span></button>
+      <button class="btn btn-ghost opt-toggle" id="optMuteBtn"><span data-i18n="on">Hidup</span></button>
     </div>
 
     <div class="opt-row" id="optVibRow">
       <span>Getar (Vibration)</span>
-      <button class="btn btn-ghost opt-toggle" id="optVibBtn">📳 Hidup</button>
+      <button class="btn btn-ghost opt-toggle" id="optVibBtn">Hidup</button>
     </div>
 
     <div class="opt-row" id="optLangRow">
@@ -1287,7 +1472,7 @@
     </div>
 
     <div class="prize-preview">
-      <div class="prize-row grand-row"><span class="score-req">7900+</span><span class="prize-name">Crocs Classic Clog 1pcs 🏆</span></div>
+      <div class="prize-row grand-row"><span class="score-req">Rekor Tertinggi</span><span class="prize-name">Crocs Classic Clog 1pcs</span></div>
       <div class="prize-row"><span class="score-req">5600+</span><span class="prize-name">DANA Kaget 50RB</span></div>
       <div class="prize-row"><span class="score-req">3900+</span><span class="prize-name">DANA Kaget 30RB</span></div>
       <div class="prize-row"><span class="score-req">2500+</span><span class="prize-name">Diskon 30RB</span></div>
@@ -1299,23 +1484,23 @@
   <!-- HOW TO PLAY MODAL -->
   <div id="htpOverlay" class="hidden">
     <div id="htpCard">
-      <div class="htp-title">📖 Cara Bermain</div>
+      <div class="htp-title">Cara Bermain</div>
 
       <div class="htp-section">
-        <h4>🎮 Kontrol</h4>
+        <h4>Kontrol</h4>
         <div class="htp-row"><span class="htp-icon">⎵</span><span>Tekan <b>Space</b> atau <b>↑ Arrow</b> untuk lompat (keyboard)</span></div>
-        <div class="htp-row"><span class="htp-icon">👆</span><span><b>Tap / klik</b> layar untuk lompat (HP & mouse)</span></div>
-        <div class="htp-row"><span class="htp-icon">🦘</span><span><b>Double jump</b> — lompat sekali lagi saat masih di udara!</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span><b>Tap / klik</b> layar untuk lompat (HP & mouse)</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span><b>Double jump</b> — lompat sekali lagi saat masih di udara!</span></div>
       </div>
 
       <div class="htp-section">
-        <h4>🎯 Tujuan</h4>
-        <div class="htp-row"><span class="htp-icon">🏃</span><span>Lari sejauh mungkin, hindari rintangan & kumpulkan permen 🍬 untuk menambah skor</span></div>
-        <div class="htp-row"><span class="htp-icon">⚡</span><span>Makin lama bermain, game makin cepat dan rintangan makin rapat!</span></div>
+        <h4>Tujuan</h4>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Lari sejauh mungkin, hindari rintangan & kumpulkan permen untuk menambah skor</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Makin lama bermain, game makin cepat dan rintangan makin rapat!</span></div>
       </div>
 
       <div class="htp-section">
-        <h4>🚧 Rintangan</h4>
+        <h4>Rintangan</h4>
         <div class="htp-grid">
           <div class="htp-row"><span class="htp-icon">🎃💀🕷️</span><span>Tanah — lompat!</span></div>
           <div class="htp-row"><span class="htp-icon">🌵🦴🪦</span><span>Tanah — lompat!</span></div>
@@ -1325,14 +1510,14 @@
       </div>
 
       <div class="htp-section">
-        <h4>❤️ Nyawa &amp; Combo</h4>
+        <h4>Nyawa &amp; Combo</h4>
         <div class="htp-row"><span class="htp-icon">❤️</span><span>Kamu punya <b>3 nyawa</b>. Kena rintangan = -1 nyawa. Habis = Game Over</span></div>
-        <div class="htp-row"><span class="htp-icon">🎁</span><span><b>Bonus nyawa</b> otomatis tiap 1000 poin (maks 3)</span></div>
-        <div class="htp-row"><span class="htp-icon">🔥</span><span>Kumpul permen <b>beruntun</b> tanpa kena → Combo <b>x2 → x3 → x4 FEVER!</b></span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span><b>Bonus nyawa</b> otomatis tiap 1000 poin (maks 3)</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Kumpul permen <b>beruntun</b> tanpa kena → Combo <b>x2 → x3 → x4 FEVER!</b></span></div>
       </div>
 
       <div class="htp-section">
-        <h4>⚡ Power-Up</h4>
+        <h4>Power-Up</h4>
         <div class="htp-row"><span class="htp-icon">🛡️</span><span><b>Perisai</b> — kebal 1x tabrakan tanpa kehilangan nyawa</span></div>
         <div class="htp-row"><span class="htp-icon">⏰</span><span><b>Slow-Mo</b> — game melambat sementara, lebih mudah menghindar</span></div>
         <div class="htp-row"><span class="htp-icon">🧲</span><span><b>Magnet</b> — permen di sekitar otomatis tertarik ke kamu</span></div>
@@ -1345,17 +1530,17 @@
       </div>
 
       <div class="htp-section">
-        <h4>🏆 Hadiah</h4>
-        <div class="htp-row"><span class="htp-icon">✨</span><span>Skor <b>500+</b> → Diskon 10RB</span></div>
-        <div class="htp-row"><span class="htp-icon">🎯</span><span>Skor <b>1000+</b> → Diskon 25RB</span></div>
-        <div class="htp-row"><span class="htp-icon">🎁</span><span>Skor <b>2500+</b> → Diskon 30RB</span></div>
-        <div class="htp-row"><span class="htp-icon">🍀</span><span>Skor <b>3900+</b> → DANA Kaget 30RB</span></div>
-        <div class="htp-row"><span class="htp-icon">💸</span><span>Skor <b>5600+</b> → DANA Kaget 50RB</span></div>
-        <div class="htp-row"><span class="htp-icon">🏆</span><span>Skor <b>7900+</b> → Crocs Classic Clog 1pcs (Grand Prize!)</span></div>
-        <div class="htp-row" style="margin-top:6px;"><span class="htp-icon">📲</span><span>Setelah game over, masukkan nama lalu klaim hadiah via WhatsApp</span></div>
+        <h4>Hadiah</h4>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Skor <b>500+</b> → Diskon 10RB</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Skor <b>1000+</b> → Diskon 25RB</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Skor <b>2500+</b> → Diskon 30RB</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Skor <b>3900+</b> → DANA Kaget 30RB</span></div>
+        <div class="htp-row"><span class="htp-icon">•</span><span>Skor <b>5600+</b> → DANA Kaget 50RB</span></div>
+        <div class="htp-row"><span class="htp-icon">🏆</span><span>Jadi <b>pemegang skor tertinggi</b> saat ini → Crocs Classic Clog 1pcs (Grand Prize!)</span></div>
+        <div class="htp-row" style="margin-top:6px;"><span class="htp-icon">•</span><span>Setelah game over, masukkan nama lalu klaim hadiah via WhatsApp</span></div>
       </div>
 
-            <button class="btn btn-primary htp-close" id="htpBtnStart">🎮 Coba Latihan Dulu!</button>
+            <button class="btn btn-primary htp-close" id="htpBtnStart">Coba Latihan Dulu</button>
       <button class="btn btn-ghost htp-close" id="htpCloseBtn" style="margin-top:8px;"><span data-i18n="close">← Tutup</span></button>
     </div>
   </div>
@@ -1364,29 +1549,30 @@
     <div class="screen-title" style="font-size:clamp(28px,6vw,52px);">GAME OVER!</div>
     <div class="screen-sub" id="gameOverScoreLabel" style="margin-bottom:8px;">Skor kamu:</div>
     <div id="gameOverScore">0</div>
-    <div id="prizeWon" class="no-prize">Belum mencapai skor hadiah 😢<br><small>Skor 500+ untuk hadiah pertama!</small></div>
+    <div id="prizeWon" class="no-prize">Belum mencapai skor hadiah<br><small>Skor 500+ untuk hadiah pertama!</small></div>
     <div id="trainingBanner" style="display:none;">
-      🎮 <strong>Mode Latihan</strong><br>
+      <strong>Mode Latihan</strong><br>
       Skor ini tidak dihitung & hadiah tidak berlaku.<br>
       <small>Klik <b>Play</b> di menu untuk main sungguhan!</small>
     </div>
     <div id="nameForm">
       <input type="text" id="playerName" placeholder="Nama kamu..." maxlength="30">
-      <button id="submitBtn">📤 Kirim</button>
+      <button id="submitBtn">Kirim</button>
     </div>
     <div id="submitMsg"></div>
     <div id="claimSection" style="display:none;margin-bottom:10px;">
-      <a id="claimWABtn" class="btn btn-green" href="#" target="_blank" rel="noopener">📲 Klaim Hadiah via WhatsApp</a>
+      <a id="claimWABtn" class="btn btn-green" href="#" target="_blank" rel="noopener">Klaim Hadiah via WhatsApp</a>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="restartBtn">Main Lagi</button>
       <button class="btn btn-ghost" id="lbBtnOver">Leaderboard</button>
-      <button class="btn btn-ghost" id="homeBtn">🏠 Menu</button>
+      <button class="btn btn-ghost" id="homeBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;vertical-align:-2px;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Menu</button>
     </div>
   </div>
   <div class="screen hidden" id="lbScreen">
-    <div class="screen-title" style="font-size:clamp(28px,6vw,52px);">🏅 Leaderboard</div>
+    <div class="screen-title" style="font-size:clamp(28px,6vw,52px);display:flex;align-items:center;justify-content:center;gap:12px;"><svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 4H4a2 2 0 0 0 0 4h1M17 4h3a2 2 0 0 1 0 4h-1"/></svg>Leaderboard</div>
     <div class="screen-sub" style="margin-bottom:8px;">Top pemain Source Crocs Halloween Run</div>
+    <div id="eventStatusBanner" class="event-status-banner" style="display:none;"></div>
     <div id="lbList"><div class="lb-empty">Memuat...</div></div>
     <div class="btn-row"><button class="btn btn-ghost" id="lbBackBtn"><span data-i18n="back">← Kembali</span></button></div>
   </div>
@@ -1399,13 +1585,16 @@
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz-YsXnI14prAGwab19r5PuXxjWx5InfeefYebshfhfdV1tAiU2bMrHH2AI1cJMxuBE/exec';
 const WA_NUMBER='6281234567890';
 const PRIZES=[
-  {score:7900,label:'Crocs Classic Clog 1pcs 🏆',tier:'grand'},
-  {score:5600,label:'DANA Kaget 50RB 🍬',tier:'tier5'},
-  {score:3900,label:'DANA Kaget 30RB 🍀',tier:'tier4'},
-  {score:2500,label:'Diskon 30RB 🎁',tier:'tier3'},
-  {score:1000,label:'Diskon 25RB 🎯',tier:'tier2'},
-  {score:500, label:'Diskon 10RB ✨',tier:'tier1'},
+  {score:5600,label:'DANA Kaget 50RB',tier:'tier5'},
+  {score:3900,label:'DANA Kaget 30RB',tier:'tier4'},
+  {score:2500,label:'Diskon 30RB',tier:'tier3'},
+  {score:1000,label:'Diskon 25RB',tier:'tier2'},
+  {score:500, label:'Diskon 10RB',tier:'tier1'},
 ];
+// Grand Prize sekarang BUKAN threshold tetap (dulu 7900+), tapi diberikan ke
+// pemegang SKOR TERTINGGI SEPANJANG MASA — ditentukan & divalidasi di backend
+// supaya tidak bisa dicurangi dari sisi client. Lihat submitBtn & backend lb_add.
+const GRAND_PRIZE_LABEL='Crocs Classic Clog 1pcs';
 
 // ═══════════════════════════════════════════════════════════
 //  AUDIO ENGINE
@@ -1447,7 +1636,7 @@ const sfxCombo=(m)=>_tone(300*m,'triangle',.1,.3);
 function setMute(m){
   isMuted=m;
   const ob=document.getElementById('optMuteBtn');
-  if(ob) ob.innerHTML = (m?'🔇 ':'🔊 ') + t(m?'off':'on');
+  if(ob) ob.innerHTML = '' + t(m?'off':'on');
   if(!audioCtx)return;
   bgGain.gain.value=m?0:0.12;sfxGain.gain.value=m?0:0.4;
 }
@@ -1521,21 +1710,21 @@ function triggerRush(){
   if(isRush||score-rushTriggeredAt<950)return;
   isRush=true;rushTimer=RUSH_DUR;rushTriggeredAt=score;
   flash('rgba(255,200,0,.3)',.6);triggerShake(8);vibrate([50,30,50,30,80]);
-  showMilestone('⚡ RUSH! ⚡');sfxMile();
+  showMilestone('RUSH!');sfxMile();
   _tone(880,'square',.08,.3);_tone(1200,'sine',.06,.4);
 }
 let isTraining=false;
 let currentPlayCode=''; // ← code yang lagi dipakai main (diisi saat redeem berhasil, dipakai saat submit skor)
 
 // ═══════════════════════════════════════════════════════════
-//  KONFIGURASI ADMIN — ganti username/password sesuai keinginanmu
-//  ADMIN_TOKEN harus SAMA PERSIS dengan ADMIN_TOKEN di Code.gs (backend),
-//  supaya endpoint admin_* di backend tidak bisa dipanggil orang lain.
+//  KONFIGURASI ADMIN
+//  Username & password TIDAK lagi disimpan di sini (supaya tidak kebaca
+//  siapapun lewat "View Page Source") — sekarang divalidasi di backend
+//  (Code.gs). Client cuma nyimpen token sesi setelah login berhasil.
 // ═══════════════════════════════════════════════════════════
-const ADMIN_USERNAME='admin';
-const ADMIN_PASSWORD='crocs2026';
-const ADMIN_TOKEN='ganti-token-rahasia-ini'; // ← WAJIB disamakan dengan ADMIN_TOKEN di Code.gs
-let isAdminLoggedIn=false;
+let adminSessionToken=sessionStorage.getItem('adminSessionToken')||'';
+let adminUsername=sessionStorage.getItem('adminUsername')||'';
+let isAdminLoggedIn=!!adminSessionToken;
 let lives=3,hitCD=0;
 const MAX_LIVES=3,BONUS_LIFE_EVERY=1000;
 let nextBonusLife=BONUS_LIFE_EVERY;
@@ -1573,7 +1762,9 @@ player.y=GROUND_Y;
 // ═══════════════════════════════════════════════════════════
 const rand=(a,b)=>a+Math.random()*(b-a);
 const randInt=(a,b)=>Math.floor(rand(a,b+1));
-function apiCall(p){return new Promise(res=>{const cb='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);p.callback=cb;const url=SCRIPT_URL+'?'+new URLSearchParams(p).toString();const sc=document.createElement('script');const t=setTimeout(()=>{cleanup();res({success:false});},10000);function cleanup(){clearTimeout(t);delete window[cb];if(sc.parentNode)document.body.removeChild(sc);}window[cb]=d=>{cleanup();res(d);};sc.src=url;document.body.appendChild(sc);});}
+function apiCall(p){return new Promise(res=>{const cb='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);p.callback=cb;const url=SCRIPT_URL+'?'+new URLSearchParams(p).toString();const sc=document.createElement('script');const t=setTimeout(()=>{cleanup();res({success:false,offline:true,message:'Tidak bisa terhubung ke server. Periksa koneksi internetmu, lalu coba lagi.'});},10000);function cleanup(){clearTimeout(t);delete window[cb];if(sc.parentNode)document.body.removeChild(sc);}window[cb]=d=>{cleanup();res(d);};sc.onerror=()=>{cleanup();res({success:false,offline:true,message:'Tidak bisa terhubung ke server. Periksa koneksi internetmu, lalu coba lagi.'});};sc.src=url;document.body.appendChild(sc);});}
+// Cek koneksi internet browser secara langsung — kalau offline, jangan capek-capek nembak API
+function isOffline(){ return typeof navigator!=='undefined' && navigator.onLine===false; }
 function getPrize(s){for(const p of PRIZES){if(s>=p.score)return p;}return null;}
 function hitTest(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 function playerRect(){const pw=PLAYER_SIZE*.7,ph=PLAYER_SIZE*.85;return{x:player.x-pw/2,y:player.y-ph,w:pw,h:ph};}
@@ -1716,7 +1907,7 @@ const LANG = {
     gfxSuperLow:   'Super Low',
     gfxHigh:       'Tinggi',
     startGame:     'Mulai Bermain!',
-    ready:         '👆 Ketuk untuk Mulai',
+    ready:         'Ketuk untuk Mulai',
     loading:       'Memuat Game...',
     preparing:     'Menyiapkan permainan...',
     gameOver:      'GAME OVER!',
@@ -1725,18 +1916,18 @@ const LANG = {
     submitScore:   'Kirim',
     playAgain:     'Main Lagi',
     claimPrize:    'Klaim Hadiah via WhatsApp',
-    noPrize:       'Belum mencapai skor hadiah 😢',
+    noPrize:       'Belum mencapai skor hadiah',
     noPrizeSub:    'Skor 500+ untuk hadiah pertama!',
     submitted:     '✓ Skor berhasil dikirim!',
-    submitFail:    '❌ Gagal kirim, coba lagi.',
-    nameRequired:  '⚠️ Masukkan nama kamu dulu!',
+    submitFail:    'Gagal kirim, coba lagi.',
+    nameRequired:  'Masukkan nama kamu dulu!',
     congrats:      'SELAMAT! Kamu memenangkan:',
     youGot:        'Kamu mendapat:',
     help:          'Bantuan',
     helpSub:       'Ada pertanyaan atau masalah? Hubungi kami!',
     helpWAHint:    'Klik untuk langsung chat',
     helpEmailHint: 'Klik untuk kirim email',
-    helpHours:     '⏰ Siap membantu Senin–Sabtu, 09.00–18.00 WIB',
+    helpHours:     'Siap membantu Senin–Sabtu, 09.00–18.00 WIB',
     close:         '← Tutup',
     aboutTitle:    'Tentang Game',
     aboutVersion:  'Versi',
@@ -1764,7 +1955,7 @@ const LANG = {
     gfxSuperLow:   'Super Low',
     gfxHigh:       'High',
     startGame:     'Start Game!',
-    ready:         '👆 Tap to Start',
+    ready:         'Tap to Start',
     loading:       'Loading Game...',
     preparing:     'Preparing game...',
     gameOver:      'GAME OVER!',
@@ -1773,18 +1964,18 @@ const LANG = {
     submitScore:   'Submit',
     playAgain:     'Play Again',
     claimPrize:    'Claim Prize via WhatsApp',
-    noPrize:       'Score too low for a prize 😢',
+    noPrize:       'Score too low for a prize',
     noPrizeSub:    'Score 500+ for your first prize!',
     submitted:     '✓ Score submitted!',
-    submitFail:    '❌ Failed, please try again.',
-    nameRequired:  '⚠️ Please enter your name first!',
+    submitFail:    'Failed, please try again.',
+    nameRequired:  'Please enter your name first!',
     congrats:      'CONGRATS! You won:',
     youGot:        'You got:',
     help:          'Help',
     helpSub:       'Have questions or issues? Contact us!',
     helpWAHint:    'Click to chat directly',
     helpEmailHint: 'Click to send email',
-    helpHours:     '⏰ Available Monday–Saturday, 09:00–18:00 WIB',
+    helpHours:     'Available Monday–Saturday, 09:00–18:00 WIB',
     close:         '← Close',
     aboutTitle:    'About',
     aboutVersion:  'Version',
@@ -1818,10 +2009,10 @@ function applyLang(){
   if(sm && sm.textContent.indexOf('✓')<0 && sm.textContent.indexOf('⏳')<0) sm.textContent = t('submitScore');
   // Sinkron mute btn
   const mb = document.getElementById('optMuteBtn');
-  if(mb) mb.innerHTML = (isMuted?'🔇 ':'🔊 ') + t(isMuted?'off':'on');
+  if(mb) mb.innerHTML = '' + t(isMuted?'off':'on');
   // Sinkron vibration btn
   const vb = document.getElementById('optVibBtn');
-  if(vb) vb.textContent = isVibOn ? '📳 Hidup' : '📴 Mati';
+  if(vb) vb.textContent = isVibOn ? 'Hidup' : 'Mati';
   // Update loader texts
   const lt = document.querySelector('.loader-title');
   if(lt) lt.textContent = t('loading');
@@ -2060,23 +2251,26 @@ function updatePopups(){popups=popups.filter(p=>p.life>0);popups.forEach(p=>{p.y
 // ═══════════════════════════════════════════════════════════
 //  LIVES & COMBO
 // ═══════════════════════════════════════════════════════════
-function updateLivesHUD(){document.getElementById('livesBox').textContent='❤️'.repeat(lives)+'🖤'.repeat(Math.max(0,MAX_LIVES-lives));}
+// SVG heart tunggal, dipakai berulang (bukan emoji font) — lebih ringan & konsisten gaya vector
+const HEART_SVG_FULL='<svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4d5e"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.8 6.6 4.9 5.2c2-.9 4.2-.2 5.5 1.5l1.6 2 1.6-2c1.3-1.7 3.5-2.4 5.5-1.5 3.1 1.4 3.9 5 2.2 7.7C18.7 16.65 12 21 12 21z"/></svg>';
+const HEART_SVG_EMPTY='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.6"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.8 6.6 4.9 5.2c2-.9 4.2-.2 5.5 1.5l1.6 2 1.6-2c1.3-1.7 3.5-2.4 5.5-1.5 3.1 1.4 3.9 5 2.2 7.7C18.7 16.65 12 21 12 21z"/></svg>';
+function updateLivesHUD(){document.getElementById('livesBox').innerHTML=HEART_SVG_FULL.repeat(lives)+HEART_SVG_EMPTY.repeat(Math.max(0,MAX_LIVES-lives));}
 function takeHit(){
   if(hitCD>0)return;
-  if(activePU.shield>0){activePU.shield=0;sfxShield();spawnPart(player.x,player.y-20,'#00cfff',10);spawnStarburst(player.x,player.y-20,'#00cfff');addPopup(player.x,player.y-55,'🛡️ BLOCKED!','#00cfff');hitCD=60;vibrate(40);return;}
+  if(activePU.shield>0){activePU.shield=0;sfxShield();spawnPart(player.x,player.y-20,'#00cfff',10);spawnStarburst(player.x,player.y-20,'#00cfff');addPopup(player.x,player.y-55,'BLOCKED!','#00cfff');hitCD=60;vibrate(40);return;}
   lives--;comboCount=0;comboTimer=0;sfxHit();flash('rgba(255,0,0,.4)',.5);triggerShake(6);vibrate(80);updateLivesHUD();
   if(lives<=0){die();return;}
-  hitCD=90;spawnPart(player.x,player.y-20,'#ff4444',6);addPopup(player.x,player.y-50,'💔 -1 Nyawa!','#ff6666');
+  hitCD=90;spawnPart(player.x,player.y-20,'#ff4444',6);addPopup(player.x,player.y-50,'-1 Nyawa','#ff6666');
 }
 function collectCandy(c){
   comboCount++;comboTimer=COMBO_TIMEOUT;
   const m=Math.min(comboCount,4),bonus=10*m;score+=bonus;sfxCandy();if(m>1)sfxCombo(m);
   spawnPart(c.x,c.y,'#FFD166',4);vibrate(15);
-  const txt=m>=4?'🔥 x'+m+' FEVER! +'+bonus:m>=2?'⚡ x'+m+' COMBO! +'+bonus:'+'+bonus+' 🍬';
+  const txt=m>=4?'x'+m+' FEVER! +'+bonus:m>=2?'x'+m+' COMBO! +'+bonus:'+'+bonus;
   const col=m>=4?'#ff6600':m>=2?'#FFD166':'#fff';
   addPopup(player.x,player.y-38,txt,col,m>=2?19:15);
   const cb=document.getElementById('comboBox');
-  if(m>=2){cb.textContent=m>=4?'🔥 FEVER x'+m:'⚡ COMBO x'+m;cb.classList.add('show');}
+  if(m>=2){cb.textContent=m>=4?'FEVER x'+m:'COMBO x'+m;cb.classList.add('show');}
 }
 function updateCombo(){if(comboTimer>0){comboTimer--;if(comboTimer<=0){comboCount=0;document.getElementById('comboBox').classList.remove('show');}}}
 
@@ -2159,8 +2353,8 @@ function activatePU(pu){
   }
   sfxPowerup();
   spawnPart(pu.x,pu.y,pu.color,8);spawnStarburst(pu.x,pu.y,pu.color);
-  const lb={shield:'🛡️ PERISAI!',slow:'⏰ SLOW-MO!',magnet:'🧲 MAGNET!',score2x:'💰 2X SKOR!',superjump:'🚀 SUPER JUMP!',sandal:'👡 SANDAL x3!'};
-  addPopup(player.x,player.y-50,lb[id]||'✨ POWER UP!',pu.color,18);
+  const lb={shield:'PERISAI!',slow:'SLOW-MO!',magnet:'MAGNET!',score2x:'2X SKOR!',superjump:'SUPER JUMP!',sandal:'SANDAL x3!'};
+  addPopup(player.x,player.y-50,lb[id]||'POWER UP!',pu.color,18);
 
   // Masukkan ke slot
   const slotIdx=findSlotFor(id);
@@ -2244,7 +2438,14 @@ function updateMilestone(){if(milestoneTimer>0){milestoneTimer--;if(milestoneTim
 // ═══════════════════════════════════════════════════════════
 //  SCORE
 // ═══════════════════════════════════════════════════════════
-function updateScore(){document.getElementById('scoreDisplay').textContent=Math.floor(score);PRIZES.forEach((p,i)=>{const el=document.getElementById('tier'+(i+1));if(el)el.classList.toggle('unlocked',score>=p.score);});}
+let currentHighScore=0; // skor tertinggi sepanjang masa (di-fetch dari server, buat referensi tier6/grand saat main)
+function updateScore(){
+  document.getElementById('scoreDisplay').textContent=Math.floor(score);
+  PRIZES.forEach(p=>{const el=document.getElementById(p.tier);if(el)el.classList.toggle('unlocked',score>=p.score);});
+  // tier6 (Grand Prize) cuma indikasi lokal — status final tetap ditentukan backend saat submit
+  const tier6=document.getElementById('tier6');
+  if(tier6) tier6.classList.toggle('unlocked', currentHighScore>0 && score>currentHighScore);
+}
 
 // ═══════════════════════════════════════════════════════════
 //  JUMP / DIE
@@ -2298,9 +2499,10 @@ function showGameOver(){
     nameForm.style.display='';
     trainingBanner.style.display='none';
     const prize=getPrize(s);
-    if(!prize){prEl.className='no-prize';prEl.innerHTML='Belum mencapai skor hadiah 😢<br><small>Skor 500+ untuk hadiah pertama!</small>';clm.style.display='none';}
-    else if(prize.tier==='grand'){prEl.className='grand-prize';prEl.innerHTML='🏆 SELAMAT! Kamu memenangkan:<br><strong>'+prize.label+'</strong>';clm.style.display='block';document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+', menang '+prize.label+'. Nama: '+(document.getElementById('playerName').value||'-')+' 🎃');}
-    else{prEl.className='has-prize';prEl.innerHTML='🎉 Kamu mendapat:<br><strong>'+prize.label+'</strong>';clm.style.display='block';document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+', dapat '+prize.label+'. Nama: '+(document.getElementById('playerName').value||'-')+' 🎃');}
+    if(!prize){prEl.className='no-prize';prEl.innerHTML='Belum mencapai skor hadiah<br><small>Skor 500+ untuk hadiah pertama!</small>';clm.style.display='none';}
+    else{prEl.className='has-prize';prEl.innerHTML='Kamu mendapat:<br><strong>'+prize.label+'</strong>';clm.style.display='block';document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+', dapat '+prize.label+'. Nama: '+(document.getElementById('playerName').value||'-')+' 🎃');}
+    // Catatan: status Grand Prize (skor tertinggi sepanjang masa) baru dikonfirmasi
+    // SETELAH submit skor, karena harus dibandingkan ke data server real-time.
     submitMsg.textContent='';
   }
   document.getElementById('gameOverScreen').classList.remove('hidden');
@@ -2312,14 +2514,51 @@ function showGameOver(){
 // ═══════════════════════════════════════════════════════════
 document.getElementById('submitBtn').addEventListener('click',async()=>{
   const nama=document.getElementById('playerName').value.trim();const s=Math.floor(score);
-  if(!nama){document.getElementById('submitMsg').textContent='⚠️ Masukkan nama kamu dulu!';return;}
-  const btn=document.getElementById('submitBtn');btn.textContent='⏳...';btn.disabled=true;
+  if(!nama){document.getElementById('submitMsg').textContent='Masukkan nama kamu dulu!';return;}
+  const btn=document.getElementById('submitBtn');btn.textContent='Mengirim...';btn.disabled=true;
   const prize=getPrize(s);
-  const res=await apiCall({action:'lb_add',nama,hadiah:prize?prize.label:'Belum ada hadiah',kode:currentPlayCode||'-',waktu:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),tanggal:new Date().toLocaleDateString('id-ID'),wasBoost:'false',wasRedBoost:'false'});
+  // Kirim skor MENTAH (numerik) ke backend — backend yang menentukan hadiah final,
+  // termasuk status Grand Prize (skor tertinggi sepanjang masa DAN event sudah
+  // berakhir), supaya tidak bisa dimanipulasi dari sisi client.
+  const res=await apiCall({action:'lb_add',nama,score:s,kode:currentPlayCode||'-'});
   btn.disabled=false;
-  if(res&&res.success){document.getElementById('submitMsg').textContent='✓ Skor berhasil dikirim!';btn.textContent='✓ Terkirim';}
-  else{document.getElementById('submitMsg').textContent='❌ Gagal kirim, coba lagi.';btn.textContent='📤 Kirim';}
+  if(res&&res.success){
+    document.getElementById('submitMsg').textContent='✓ Skor berhasil dikirim!';btn.textContent='✓ Terkirim';
+    // Server sudah menentukan status FINAL (termasuk cek Grand Prize & event) — update tampilan sesuai itu.
+    const prEl=document.getElementById('prizeWon');
+    const clm=document.getElementById('claimSection');
+    if(res.isGrandPrize){
+      // Event SUDAH berakhir & skor ini adalah yang tertinggi — menang beneran.
+      prEl.className='grand-prize';
+      prEl.innerHTML='SELAMAT! Kamu memenangkan Grand Prize dengan skor tertinggi!<br><strong>'+(res.hadiah||GRAND_PRIZE_LABEL)+'</strong>';
+      clm.style.display='block';
+      document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+' (GRAND PRIZE - REKOR TERTINGGI), menang '+(res.hadiah||GRAND_PRIZE_LABEL)+'. Nama: '+nama+' 🎃');
+    } else if(res.isCurrentLeader){
+      // Masih memimpin, tapi event BELUM berakhir — belum pasti menang.
+      prEl.className='grand-prize';
+      const remain=formatEventCountdown(res.eventRemainingMs);
+      prEl.innerHTML='Skor kamu saat ini <strong>TERTINGGI</strong>!<br><small>Grand Prize baru resmi jadi milikmu kalau kamu masih memimpin saat event berakhir'+(remain?' (sisa '+remain+')':'')+'.</small>';
+      clm.style.display=(res.hadiah&&res.hadiah!=='-')?'block':'none';
+      if(res.hadiah&&res.hadiah!=='-') document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+', dapat '+res.hadiah+'. Nama: '+nama+' 🎃');
+    } else if(res.hadiah && res.hadiah!=='-'){
+      prEl.className='has-prize';
+      prEl.innerHTML='Kamu mendapat:<br><strong>'+res.hadiah+'</strong>';
+      clm.style.display='block';
+      document.getElementById('claimWABtn').href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Halo! Skor '+s+', dapat '+res.hadiah+'. Nama: '+nama+' 🎃');
+    }
+  }
+  else{document.getElementById('submitMsg').textContent='Gagal kirim, coba lagi.';btn.textContent='Kirim';}
 });
+
+// Format ms sisa waktu event jadi teks "Xh Yj" (hari + jam)
+function formatEventCountdown(ms){
+  if(!ms||ms<=0)return'';
+  const totalHour=Math.floor(ms/3600000);
+  const d=Math.floor(totalHour/24),h=totalHour%24;
+  if(d>0) return d+'h '+h+'j';
+  const m=Math.floor((ms%3600000)/60000);
+  return h+'j '+m+'m';
+}
 
 // ═══════════════════════════════════════════════════════════
 //  LEADERBOARD
@@ -2329,9 +2568,31 @@ async function showLB(from){
   lbPrev=from;['startScreen','gameOverScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   document.getElementById('lbScreen').classList.remove('hidden');
   const listEl=document.getElementById('lbList');listEl.innerHTML='<div class="lb-empty">Memuat...</div>';
+  const bannerEl=document.getElementById('eventStatusBanner');bannerEl.style.display='none';
+
+  // Ambil status event (sisa waktu & siapa yang sedang memimpin skor)
+  apiCall({action:'get_event_status'}).then(ev=>{
+    if(!ev||!ev.success)return;
+    bannerEl.style.display='block';
+    if(ev.isEventOver){
+      bannerEl.className='event-status-banner over';
+      bannerEl.innerHTML=ev.leader&&ev.leader.nama
+        ? 'Event sudah berakhir. Grand Prize dimenangkan oleh <strong>'+ev.leader.nama+'</strong> dengan skor <strong>'+ev.leader.score+'</strong>!'
+        : 'Event sudah berakhir.';
+    } else {
+      bannerEl.className='event-status-banner ongoing';
+      const remain=formatEventCountdown(ev.timeRemainingMs);
+      bannerEl.innerHTML=(ev.leader&&ev.leader.nama
+        ? 'Saat ini memimpin: <strong>'+ev.leader.nama+'</strong> (skor <strong>'+ev.leader.score+'</strong>)<br>'
+        : '')+'Event berakhir dalam '+(remain||'segera')+' — pertahankan posisimu untuk menang Grand Prize!';
+    }
+  });
+
   const res=await apiCall({action:'lb_list'});
+  if(res&&res.offline){listEl.innerHTML='<div class="lb-empty">'+res.message+'</div>';return;}
   if(!res||!res.success||!res.entries||!res.entries.length){listEl.innerHTML='<div class="lb-empty">Belum ada data 🎃</div>';return;}
-  listEl.innerHTML=res.entries.slice(0,20).map((e,i)=>{const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';return'<div class="lb-row '+(i<3?'top'+(i+1):'')+'"><span class="rank">'+medal+'</span><span>'+(e.nama||'Anonim')+'</span><span class="lb-score">'+(e.hadiah||'-')+'</span></div>';}).join('');
+  const sorted=res.entries.slice().sort((a,b)=>(b.score||0)-(a.score||0));
+  listEl.innerHTML=sorted.slice(0,20).map((e,i)=>{const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';return'<div class="lb-row '+(i<3?'top'+(i+1):'')+'"><span class="rank">'+medal+'</span><span>'+(e.nama||'Anonim')+'</span><span class="lb-score">'+(e.score||0)+'</span></div>';}).join('');
 }
 document.getElementById('lbBtnStart').addEventListener('click',()=>showLB('start'));
 document.getElementById('lbBtnOver').addEventListener('click',()=>showLB('over'));
@@ -2403,6 +2664,8 @@ function startGame(){
   document.body.classList.add('in-game'); // aktifkan lagi area tap-jump mobile
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('gameOverScreen').classList.add('hidden');
+  // Ambil skor tertinggi saat ini (buat indikator tier6/grand di HUD) — non-blocking
+  apiCall({action:'get_high_score'}).then(r=>{ if(r&&r.success) currentHighScore=r.highScore||0; });
   const gl = document.getElementById('gameLoader');
   gl.classList.remove('hidden');
   initAudio();
@@ -2471,7 +2734,7 @@ function loop(ts){
     if(hitCD>0)hitCD--;
     updateCombo();updatePUhud(dt);updateFlash();updateMilestone();
     // Bonus life
-    if(score>=nextBonusLife&&lives<MAX_LIVES){lives++;nextBonusLife+=BONUS_LIFE_EVERY;updateLivesHUD();sfxMile();addPopup(player.x,player.y-60,'❤️ +1 Nyawa!','#ff8888');flash('rgba(255,100,100,.25)',.35);}
+    if(score>=nextBonusLife&&lives<MAX_LIVES){lives++;nextBonusLife+=BONUS_LIFE_EVERY;updateLivesHUD();sfxMile();addPopup(player.x,player.y-60,'+1 Nyawa!','#ff8888');flash('rgba(255,100,100,.25)',.35);}
     // Spawn
     nextObstacle--;if(nextObstacle<=0)spawnOb();
     nextCandy--;if(nextCandy<=0)spawnCandy();
@@ -2502,10 +2765,10 @@ function loop(ts){
         sandalCount--;
         spawnPart(ob.x,ob.y-ob.h/2,'#FF6B35',10);
         spawnStarburst(ob.x,ob.y-ob.h/2,'#FF6B35');
-        addPopup(ob.x,ob.y-ob.h,'💥 HANCUR!','#FF6B35',18);
+        addPopup(ob.x,ob.y-ob.h,'HANCUR!','#FF6B35',18);
         _tone(300,'square',.08,.4);
         vibrate(40);
-        if(sandalCount<=0){activePU.sandal=0;addPopup(player.x,player.y-50,'👡 Sandal Habis!','#FF6B35',16);
+        if(sandalCount<=0){activePU.sandal=0;addPopup(player.x,player.y-50,'Sandal Habis!','#FF6B35',16);
         // Kosongkan slot sandal
         for(let _i=0;_i<MAX_SLOTS;_i++){if(skillSlots[_i]&&skillSlots[_i].id==='sandal'){setSlotEmpty(_i);break;}}}
         obstacles.splice(i,1);continue;
@@ -2529,7 +2792,7 @@ function loop(ts){
       ctx.save();ctx.font=`bold ${Math.round(H*0.055)}px Nunito,sans-serif`;
       ctx.textAlign='center';ctx.textBaseline='top';
       ctx.fillStyle='#FFD166';ctx.shadowColor='#FF6B35';ctx.shadowBlur=20;
-      ctx.fillText('⚡ RUSH! ⚡',W/2,Math.round(H*0.18));ctx.restore();
+      ctx.fillText('RUSH!',W/2,Math.round(H*0.18));ctx.restore();
     }
   }
   // Speed lines — hanya di mode High saat kecepatan tinggi
@@ -2630,7 +2893,7 @@ function renderCostumeGrid(){
   panel.innerHTML=COSTUMES.map(c=>`
     <button class="costume-color-btn ${c.id===selectedCostume.id?'selected':''}" data-id="${c.id}">
       <span class="costume-color-dot" style="${c.shape==='sprite'?`background:rgba(255,255,255,0.06);font-size:14px;display:flex;align-items:center;justify-content:center;`:`background:${c.body};`}">${c.shape==='sprite'?c.sprite:''}</span>
-      <span class="costume-color-btn-name">${c.shape==='sprite'?'':c.emoji+' '}${c.name}</span>
+      <span class="costume-color-btn-name">${c.name}</span>
     </button>
   `).join('');
   panel.querySelectorAll('.costume-color-btn').forEach(btn=>{
@@ -2706,7 +2969,7 @@ document.getElementById('playWithCodeBtn').addEventListener('click',()=>{
   inp.value='';
   document.getElementById('codeErrorMsg').style.display='none';
   const btn=document.getElementById('codeVerifyBtn');
-  btn.textContent='✅ Verifikasi Code';
+  btn.textContent='Verifikasi Code';
   btn.dataset.verified='0';
   setTimeout(()=>inp.focus(),200);
 });
@@ -2729,6 +2992,14 @@ document.getElementById('howToGetCodeCloseBtn').addEventListener('click',()=>{
   document.getElementById('howToGetCodeOverlay').classList.add('hidden');
 });
 
+// Modal "Update Terbaru" (Changelog)
+document.getElementById('changelogBtn').addEventListener('click',()=>{
+  document.getElementById('changelogOverlay').classList.remove('hidden');
+});
+document.getElementById('changelogCloseBtn').addEventListener('click',()=>{
+  document.getElementById('changelogOverlay').classList.add('hidden');
+});
+
 // Auto-format input jadi XXX-XXX (huruf/angka, maksimal 6 karakter + 1 strip)
 document.getElementById('codeInput').addEventListener('input',(e)=>{
   let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
@@ -2737,7 +3008,7 @@ document.getElementById('codeInput').addEventListener('input',(e)=>{
   document.getElementById('codeErrorMsg').style.display='none';
   // Kalau user edit lagi setelah verifikasi, reset tombol ke Verifikasi Code
   const btn=document.getElementById('codeVerifyBtn');
-  if(btn.dataset.verified==='1'){ btn.textContent='✅ Verifikasi Code'; btn.dataset.verified='0'; }
+  if(btn.dataset.verified==='1'){ btn.textContent='Verifikasi Code'; btn.dataset.verified='0'; }
 });
 
 document.getElementById('codeVerifyBtn').addEventListener('click',async()=>{
@@ -2751,7 +3022,7 @@ document.getElementById('codeVerifyBtn').addEventListener('click',async()=>{
     const res=await apiCall({action:'code_redeem',code:raw});
     btn.disabled=false;
     if(!res||!res.success){
-      errEl.textContent='❌ '+(res&&res.message?res.message:'Gagal memulai, coba lagi.');
+      errEl.textContent=(res&&res.message?res.message:'Gagal memulai, coba lagi.');
       errEl.style.display='block';
       btn.textContent='▶ Langsung Bermain!';
       return;
@@ -2765,7 +3036,7 @@ document.getElementById('codeVerifyBtn').addEventListener('click',async()=>{
 
   const raw = document.getElementById('codeInput').value.replace(/-/g,'');
   if(raw.length!==6){
-    errEl.textContent='⚠️ Code harus 6 digit ya!';
+    errEl.textContent='Code harus 6 digit ya.';
     errEl.style.display='block';
     return;
   }
@@ -2774,9 +3045,9 @@ document.getElementById('codeVerifyBtn').addEventListener('click',async()=>{
   const res=await apiCall({action:'code_verify',code:raw});
   btn.disabled=false;
   if(!res||!res.success){
-    errEl.textContent='❌ '+(res&&res.message?res.message:'Code tidak ditemukan / sudah dipakai.');
+    errEl.textContent=(res&&res.message?res.message:'Code tidak ditemukan / sudah dipakai.');
     errEl.style.display='block';
-    btn.textContent='✅ Verifikasi Code';
+    btn.textContent='Verifikasi Code';
     btn.dataset.verified='0';
     return;
   }
@@ -2803,17 +3074,29 @@ document.getElementById('adminLoginBackBtn').addEventListener('click',()=>{
   document.getElementById('accountLoginScreen').classList.add('hidden');
   document.getElementById('startScreen').classList.remove('hidden');
 });
-document.getElementById('adminLoginBtn').addEventListener('click',()=>{
+document.getElementById('adminLoginBtn').addEventListener('click',async()=>{
   const u=document.getElementById('adminUsername').value.trim();
   const p=document.getElementById('adminPassword').value;
   const errEl=document.getElementById('adminLoginError');
-  if(u===ADMIN_USERNAME && p===ADMIN_PASSWORD){
+  const btn=document.getElementById('adminLoginBtn');
+  if(!u||!p){ errEl.textContent='Need Username & Password'; errEl.style.display='block'; return; }
+
+  errEl.style.display='none';
+  btn.disabled=true; const oldTxt=btn.textContent; btn.textContent='⏳ Checking....';
+  const res=await apiCall({action:'admin_login',username:u,password:p});
+  btn.disabled=false; btn.textContent=oldTxt;
+
+  if(res&&res.success&&res.token){
+    adminSessionToken=res.token;
+    adminUsername=u;
+    sessionStorage.setItem('adminSessionToken',adminSessionToken);
+    sessionStorage.setItem('adminUsername',adminUsername);
     isAdminLoggedIn=true;
     document.getElementById('accountLoginScreen').classList.add('hidden');
     document.getElementById('adminPanelScreen').classList.remove('hidden');
     loadAdminData();
   } else {
-    errEl.textContent='❌ Username atau password salah.';
+    errEl.textContent=(res&&res.message)?res.message:'Username or password incorrect';
     errEl.style.display='block';
   }
 });
@@ -2823,31 +3106,88 @@ document.getElementById('adminLoginBtn').addEventListener('click',()=>{
 });
 document.getElementById('adminLogoutBtn').addEventListener('click',()=>{
   isAdminLoggedIn=false;
+  adminSessionToken='';
+  adminUsername='';
+  adminLogLoaded=false;
+  sessionStorage.removeItem('adminSessionToken');
+  sessionStorage.removeItem('adminUsername');
   document.getElementById('adminPanelScreen').classList.add('hidden');
   document.getElementById('startScreen').classList.remove('hidden');
 });
 document.getElementById('adminRefreshBtn').addEventListener('click',loadAdminData);
 
+// ── Log Aktivitas (collapsible, dimuat sekali saat pertama dibuka) ──
+let adminLogLoaded=false;
+document.getElementById('adminLogToggleBtn').addEventListener('click',async()=>{
+  const section=document.getElementById('adminLogSection');
+  const icon=document.getElementById('adminLogToggleIcon');
+  const willShow=section.style.display==='none';
+  section.style.display=willShow?'block':'none';
+  icon.textContent=willShow?'▲':'▼';
+  if(willShow && !adminLogLoaded){
+    adminLogLoaded=true;
+    await loadAdminLogs();
+  }
+});
+
+async function loadAdminLogs(){
+  const listEl=document.getElementById('adminLogList');
+  listEl.innerHTML='<div class="lb-empty">Memuat...</div>';
+  const res=await apiCall({action:'admin_view_logs',token:adminSessionToken});
+  if(res&&res.authError){ forceAdminLogout(res.message); return; }
+  if(!res||!res.success||!res.logs||!res.logs.length){
+    listEl.innerHTML='<div class="lb-empty">'+(res&&res.message?res.message:'Belum ada log aktivitas.')+'</div>';
+    return;
+  }
+  listEl.innerHTML=res.logs.map(l=>{
+    const t=new Date(l.timestamp);
+    const timeStr=isNaN(t.getTime())?l.timestamp:t.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const actionLabel={login_success:'Login berhasil',login_failed:'Login gagal',login_locked:'Login diblokir sementara',generate_codes:'Generate code',delete_code:'Hapus code'}[l.action]||l.action;
+    return `<div class="admin-log-row">
+      <div class="log-time">${timeStr} — ${l.username}</div>
+      <div class="log-action ${l.action}">${actionLabel}</div>
+      ${l.detail&&l.detail!=='-'?`<div style="color:#7a6a8a;margin-top:2px;">${l.detail}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
 let allAdminCodes=[]; // cache hasil admin_list_codes buat filter tab tanpa fetch ulang
+
+function forceAdminLogout(msg){
+  isAdminLoggedIn=false;
+  adminSessionToken='';
+  adminLogLoaded=false;
+  sessionStorage.removeItem('adminSessionToken');
+  document.getElementById('adminPanelScreen').classList.add('hidden');
+  document.getElementById('accountLoginScreen').classList.remove('hidden');
+  const errEl=document.getElementById('adminLoginError');
+  errEl.textContent=(msg||'Your Session Is Expired, Try Reconnect Again.');
+  errEl.style.display='block';
+}
 
 async function loadAdminData(){
   document.getElementById('adminCodeList').innerHTML='<div class="lb-empty">Memuat...</div>';
   ['statTotalCodes','statUsedCodes','statUnusedCodes','statTotalPlayers'].forEach(id=>{document.getElementById(id).textContent='–';});
 
-  const statsRes=await apiCall({action:'admin_stats',token:ADMIN_TOKEN});
+  const statsRes=await apiCall({action:'admin_stats',token:adminSessionToken});
   if(statsRes&&statsRes.success){
     document.getElementById('statTotalCodes').textContent=statsRes.totalCodes;
     document.getElementById('statUsedCodes').textContent=statsRes.usedCodes;
     document.getElementById('statUnusedCodes').textContent=statsRes.unusedCodes;
     document.getElementById('statTotalPlayers').textContent=statsRes.totalPlayers;
+  } else if(statsRes&&statsRes.authError){
+    forceAdminLogout('Sesi login sudah berakhir, silakan login ulang.');
+    return;
   }
 
-  const listRes=await apiCall({action:'admin_list_codes',token:ADMIN_TOKEN});
+  const listRes=await apiCall({action:'admin_list_codes',token:adminSessionToken});
   if(listRes&&listRes.success){
     allAdminCodes=listRes.codes||[];
     renderAdminCodeList('all');
+  } else if(listRes&&listRes.authError){
+    forceAdminLogout('Sesi login sudah berakhir, silakan login ulang.');
   } else {
-    document.getElementById('adminCodeList').innerHTML='<div class="lb-empty">Gagal memuat data 😔</div>';
+    document.getElementById('adminCodeList').innerHTML='<div class="lb-empty">'+(listRes&&listRes.message?listRes.message:'Gagal memuat data.')+'</div>';
   }
 }
 
@@ -2860,9 +3200,28 @@ function renderAdminCodeList(filter){
   listEl.innerHTML=rows.map(c=>`
     <div class="admin-code-row">
       <span class="code-mono">${c.code}</span>
-      <span class="admin-code-badge ${c.status}">${c.status==='used'?'TERPAKAI':'AKTIF'}</span>
+      <span class="admin-code-row-actions">
+        <span class="admin-code-badge ${c.status}">${c.status==='used'?'TERPAKAI':'AKTIF'}</span>
+        ${c.status==='unused'?`<button class="admin-delete-btn" data-code="${c.code}" title="Hapus code"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button>`:''}
+      </span>
     </div>
   `).join('');
+  listEl.querySelectorAll('.admin-delete-btn').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const code=btn.dataset.code;
+      if(!confirm(`Yakin mau hapus code ${code}? Aksi ini tidak bisa dibatalkan.`)) return;
+      btn.disabled=true;btn.textContent='...';
+      const res=await apiCall({action:'admin_delete_code',token:adminSessionToken,username:adminUsername,code});
+      if(res&&res.authError){ forceAdminLogout(res.message); return; }
+      if(res&&res.success){
+        loadAdminData();
+      } else {
+        alert(res&&res.message?res.message:'Gagal menghapus code.');
+        btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>';
+        btn.disabled=false;
+      }
+    });
+  });
 }
 
 document.querySelectorAll('.admin-filter-tab').forEach(tab=>{
@@ -2876,15 +3235,15 @@ document.querySelectorAll('.admin-filter-tab').forEach(tab=>{
 document.getElementById('adminGenerateBtn').addEventListener('click',async()=>{
   const btn=document.getElementById('adminGenerateBtn');
   const count=Math.max(1,Math.min(200,parseInt(document.getElementById('adminGenCount').value,10)||10));
-  btn.disabled=true;btn.textContent='⏳...';
-  const res=await apiCall({action:'admin_generate_codes',token:ADMIN_TOKEN,count});
-  btn.disabled=false;btn.textContent='🎲 Generate';
+  btn.disabled=true;btn.textContent='...';
+  const res=await apiCall({action:'admin_generate_codes',token:adminSessionToken,username:adminUsername,count});
+  btn.disabled=false;btn.textContent='Generate';
   const genList=document.getElementById('adminGeneratedList');
   if(res&&res.success&&res.codes){
     genList.innerHTML=res.codes.map(c=>`<span class="code-chip">${c}</span>`).join('');
     loadAdminData(); // refresh statistik & daftar code
   } else {
-    genList.innerHTML='<span style="color:#ff8080;font-size:12px;">❌ '+(res&&res.message?res.message:'Gagal generate code.')+'</span>';
+    genList.innerHTML='<span style="color:#ff8080;font-size:12px;">'+(res&&res.message?res.message:'Gagal generate code.')+'</span>';
   }
 });
 
@@ -2898,7 +3257,7 @@ function showDeviceTutorial(type){
   document.getElementById('deviceScreen').classList.add('hidden');
   document.getElementById('deviceTutorialDesktop').style.display = (type==='desktop') ? 'block' : 'none';
   document.getElementById('deviceTutorialMobile').style.display = (type==='mobile') ? 'block' : 'none';
-  document.getElementById('deviceTutorialTitle').textContent = (type==='desktop') ? '🖥️ Tutorial Desktop' : '📱 Tutorial Handphone';
+  document.getElementById('deviceTutorialTitle').textContent = (type==='desktop') ? 'Tutorial Desktop' : 'Tutorial Handphone';
   document.getElementById('deviceTutorialOverlay').classList.remove('hidden');
 
   // Timer 10 detik sebelum tombol lanjut bisa dipencet
@@ -2907,19 +3266,19 @@ function showDeviceTutorial(type){
   btn.disabled = true;
   btn.style.opacity = '0.5';
   btn.style.cursor = 'not-allowed';
-  btn.textContent = `⏳ Tunggu ${secondsLeft} detik...`;
+  btn.textContent = `Tunggu ${secondsLeft} detik...`;
   if(deviceTutorialTimerId) clearInterval(deviceTutorialTimerId);
   deviceTutorialTimerId = setInterval(()=>{
     secondsLeft--;
     if(secondsLeft > 0){
-      btn.textContent = `⏳ Tunggu ${secondsLeft} detik...`;
+      btn.textContent = `Tunggu ${secondsLeft} detik...`;
     } else {
       clearInterval(deviceTutorialTimerId);
       deviceTutorialTimerId = null;
       btn.disabled = false;
       btn.style.opacity = '1';
       btn.style.cursor = 'pointer';
-      btn.textContent = '✅ Mengerti, Lanjut!';
+      btn.textContent = 'Mengerti, Lanjut';
     }
   }, 1000);
 }
@@ -2945,7 +3304,7 @@ document.getElementById('optMuteBtn').addEventListener('click',()=>{if(!audioCtx
 document.getElementById('optVibBtn').addEventListener('click',()=>{
   saveVib(!isVibOn);
   const btn=document.getElementById('optVibBtn');
-  btn.textContent=isVibOn?'📳 Hidup':'📴 Mati';
+  btn.textContent=isVibOn?'Hidup':'Mati';
   if(isVibOn)vibrate(30); // test vibrate
 });
 // How-to-play modal
@@ -2972,16 +3331,16 @@ const loaderTip = document.getElementById('loaderTip');
 
 // Tips yang berganti-ganti selama loading
 const LOADER_TIPS = [
-  '💡 Kumpulkan permen untuk menambah skor!',
-  '⚡ Power-up Sandal bisa menghancurkan rintangan!',
-  '🦘 Kamu bisa double jump — lompat dua kali!',
-  '🔥 Combo beruntun bikin skor berlipat hingga x4!',
-  '🛡️ Power-up Perisai melindungi dari 1 tabrakan!',
-  '⏰ Slow-Mo bikin semua berjalan lambat sementara!',
-  '❤️ Dapat +1 nyawa otomatis setiap 1000 poin!',
-  '⚡ RUSH! muncul tiap 1000 skor — bersiaplah!',
-  '🧲 Magnet menarik semua permen di sekitar kamu!',
-  '👟 Sandal Crocs bisa menghancurkan rintangan!',
+  'Kumpulkan permen untuk menambah skor!',
+  'Power-up Sandal bisa menghancurkan rintangan!',
+  'Kamu bisa double jump — lompat dua kali!',
+  'Combo beruntun bikin skor berlipat hingga x4!',
+  'Power-up Perisai melindungi dari 1 tabrakan!',
+  'Slow-Mo bikin semua berjalan lambat sementara!',
+  'Dapat +1 nyawa otomatis setiap 1000 poin!',
+  'RUSH! muncul tiap 1000 skor — bersiaplah!',
+  'Magnet menarik semua permen di sekitar kamu!',
+  'Sandal Crocs bisa menghancurkan rintangan!',
 ];
 let tipIdx = 0;
 let tipTimer = 0;
@@ -3067,7 +3426,7 @@ function warmStep(){
   } else {
     // Loading selesai — tunda sebentar lalu fade out dramatis
     if(loaderPct) loaderPct.textContent='100%';
-    if(loaderTip) loaderTip.textContent='✅ Siap! Selamat bermain! 🎃';
+    if(loaderTip) loaderTip.textContent='Siap! Selamat bermain. 🎃';
     setTimeout(()=>{
       cancelAnimationFrame(loaderRAF);
       const pl = document.getElementById('pageLoader');
